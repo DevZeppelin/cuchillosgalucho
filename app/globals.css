@@ -1,26 +1,229 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@theme {
+  /* Acero — fríos, oscuros, premium */
+  --color-steel-50: #f4f6f8;
+  --color-steel-100: #e2e7ed;
+  --color-steel-200: #c4cdd8;
+  --color-steel-300: #97a4b4;
+  --color-steel-400: #6a7888;
+  --color-steel-500: #4a5666;
+  --color-steel-600: #36404e;
+  --color-steel-700: #262d38;
+  --color-steel-800: #181d25;
+  --color-steel-900: #0e1218;
+  --color-steel-950: #06080b;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  /* Madera — cálidos, tierra */
+  --color-wood-50: #faf4ec;
+  --color-wood-100: #f0e0c6;
+  --color-wood-200: #e0c08c;
+  --color-wood-300: #c79962;
+  --color-wood-400: #a87741;
+  --color-wood-500: #8b5a2b;
+  --color-wood-600: #6e4520;
+  --color-wood-700: #553318;
+  --color-wood-800: #3a2210;
+  --color-wood-900: #22140a;
+
+  /* Cobre — acento dorado/anaranjado */
+  --color-copper-50: #fdf3e7;
+  --color-copper-100: #fae0bf;
+  --color-copper-200: #f3c285;
+  --color-copper-300: #ecaa5c;
+  --color-copper-400: #e08e3a;
+  --color-copper-500: #c97525;
+  --color-copper-600: #a85d1c;
+  --color-copper-700: #7f4516;
+  --color-copper-800: #57300f;
+  --color-copper-900: #321b08;
+
   --font-sans: var(--font-geist-sans);
+  --font-display: var(--font-cormorant);
   --font-mono: var(--font-geist-mono);
+
+  --color-background: var(--color-steel-950);
+  --color-foreground: var(--color-steel-50);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    background: var(--color-steel-950);
+    color: var(--color-steel-50);
+  }
+  body {
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(201, 117, 37, 0.08), transparent 60%),
+      radial-gradient(900px 500px at -10% 30%, rgba(139, 90, 43, 0.07), transparent 60%),
+      var(--color-steel-950);
+    color: var(--color-steel-50);
+    min-height: 100vh;
+    font-family: var(--font-geist-sans), system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection {
+    background: var(--color-copper-500);
+    color: var(--color-steel-950);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  .font-display {
+    font-family: var(--font-cormorant), Georgia, serif;
+    letter-spacing: -0.01em;
+  }
+
+  /* Filo metálico — un degradado tipo acero pulido */
+  .steel-edge {
+    background: linear-gradient(
+      135deg,
+      #1f2630 0%,
+      #5a6573 30%,
+      #d8dde4 50%,
+      #5a6573 70%,
+      #1f2630 100%
+    );
+    background-size: 200% 200%;
+  }
+
+  .text-gradient-copper {
+    background: linear-gradient(135deg, #f3c285 0%, #c97525 50%, #ecaa5c 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .text-gradient-steel {
+    background: linear-gradient(135deg, #f4f6f8 0%, #97a4b4 50%, #f4f6f8 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Textura de grano de madera */
+  .wood-texture {
+    background-color: #553318;
+    background-image:
+      repeating-linear-gradient(
+        90deg,
+        rgba(58, 34, 16, 0.55) 0px,
+        rgba(58, 34, 16, 0) 2px,
+        rgba(110, 69, 32, 0.4) 3px,
+        rgba(58, 34, 16, 0.55) 5px
+      ),
+      radial-gradient(ellipse at 30% 40%, rgba(199, 153, 98, 0.18), transparent 70%);
+  }
+
+  /* Líneas finas tipo grabado */
+  .hairline-divider {
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--color-copper-500) 20%,
+      var(--color-copper-300) 50%,
+      var(--color-copper-500) 80%,
+      transparent
+    );
+  }
+}
+
+/* Animaciones */
+@keyframes shine {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-14px) rotate(2deg); }
+}
+@keyframes reveal {
+  from { opacity: 0; transform: translateY(28px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(201, 117, 37, 0.55); }
+  50% { box-shadow: 0 0 26px 8px rgba(201, 117, 37, 0.15); }
+}
+@keyframes slide-in-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes draw-line {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes cart-bump {
+  0%   { transform: translateY(0) rotate(0); }
+  25%  { transform: translateY(-3px) rotate(-8deg); }
+  50%  { transform: translateY(0) rotate(6deg); }
+  75%  { transform: translateY(-1px) rotate(-3deg); }
+  100% { transform: translateY(0) rotate(0); }
+}
+@keyframes cart-ping {
+  0%   { transform: scale(1); opacity: 0.6; }
+  80%  { transform: scale(2.2); opacity: 0; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+.animate-shine {
+  background-size: 200% 100%;
+  animation: shine 6s linear infinite;
+}
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+.animate-reveal {
+  animation: reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.animate-glow-pulse {
+  animation: glow-pulse 2.4s ease-in-out infinite;
+}
+.animate-slide-in-right {
+  animation: slide-in-right 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.animate-fade-in {
+  animation: fade-in 0.4s ease-out forwards;
+}
+.animate-draw-line {
+  transform-origin: left;
+  animation: draw-line 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.animate-cart-bump {
+  animation: cart-bump 0.55s cubic-bezier(0.36, 0, 0.34, 1.56);
+}
+.animate-cart-ping {
+  animation: cart-ping 0.7s cubic-bezier(0, 0, 0.2, 1);
+}
+
+/* Estado inicial para reveal-on-scroll */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal-on-scroll.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Scrollbar fino */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-steel-900);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-steel-700);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-copper-600);
 }
