@@ -1,19 +1,7 @@
 import Image from "next/image";
 import type { ReactNode } from "react";
-
-type FamosoItem = { src: string; alt: string };
-
-const FAMOSOS: FamosoItem[] = [
-  { src: "/famosos/famoso-ppal.jpeg", alt: "Embajador de la marca" },
-  { src: "/famosos/famoso01.jpg",     alt: "Famoso 01"            },
-  { src: "/famosos/famoso02.jpg",     alt: "Famoso 02"            },
-  { src: "/famosos/famso03.jpg",      alt: "Famoso 03"            },
-  { src: "/famosos/famoso04.jpg",     alt: "Famoso 04"            },
-  { src: "/famosos/famoso05.png",     alt: "Famoso 05"            },
-];
-
-// Duplicar para loop perfecto — el track translateX(-50%) = volver al inicio
-const ITEMS = [...FAMOSOS, ...FAMOSOS];
+import { readdirSync } from "fs";
+import { join } from "path";
 
 interface FamososCarouselProps {
   eyebrow?: string;
@@ -21,11 +9,26 @@ interface FamososCarouselProps {
   descripcion?: string;
 }
 
+function getFotos() {
+  try {
+    const dir = join(process.cwd(), "public/famosos");
+    return readdirSync(dir)
+      .filter((f) => /\.(jpe?g|png|webp|gif|avif)$/i.test(f))
+      .map((f) => ({ src: `/famosos/${f}`, alt: f.replace(/\.[^.]+$/, "") }));
+  } catch {
+    return [];
+  }
+}
+
 export function FamososCarousel({
   eyebrow = "Los que los eligen",
   titulo,
   descripcion,
 }: FamososCarouselProps) {
+  const fotos = getFotos();
+  // Duplicar para loop perfecto
+  const items = [...fotos, ...fotos];
+
   return (
     <section className="relative py-20 lg:py-28">
       <div
@@ -49,9 +52,8 @@ export function FamososCarousel({
         </div>
       )}
 
-      {/* ── Carrusel ──────────────────────────────────────── */}
+      {/* ── Carrusel infinito ─────────────────────────────── */}
       <div className="famosos-wrap relative">
-        {/* Degradado en bordes */}
         <div
           aria-hidden
           className="pointer-events-none absolute inset-y-0 left-0 w-32 z-10"
@@ -64,17 +66,17 @@ export function FamososCarousel({
         />
 
         <div className="famosos-track gap-4" style={{ width: "max-content" }}>
-          {ITEMS.map((f, i) => (
+          {items.map((f, i) => (
             <div
               key={i}
               className="relative shrink-0 rounded-2xl overflow-hidden bg-steel-900"
-              style={{ width: "clamp(180px, 16vw, 240px)", aspectRatio: "3/4" }}
+              style={{ width: "clamp(160px, 14vw, 220px)", aspectRatio: "3/4" }}
             >
               <Image
                 src={f.src}
                 alt={f.alt}
                 fill
-                sizes="240px"
+                sizes="220px"
                 className="object-cover"
               />
             </div>

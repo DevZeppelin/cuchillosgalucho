@@ -5,7 +5,7 @@ import type { CartItem } from "./types";
  * Formato internacional sin `+` ni espacios. Argentina: 54 9 11 ...
  */
 export const OWNER_WHATSAPP =
-  process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "5491100000000";
+  process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "5492241672338";
 
 export function formatARS(n: number): string {
   return new Intl.NumberFormat("es-AR", {
@@ -20,7 +20,10 @@ export interface WhatsAppOrderOptions {
   mayorista?: { nombreComercial: string; usuario: string };
 }
 
-export function buildOrderMessage({ items, mayorista }: WhatsAppOrderOptions): string {
+export function buildOrderMessage({
+  items,
+  mayorista,
+}: WhatsAppOrderOptions): string {
   const lineas: string[] = [];
   lineas.push("*Nuevo pedido — Cuchillos Galucho*");
   if (mayorista) {
@@ -47,7 +50,10 @@ export function buildOrderMessage({ items, mayorista }: WhatsAppOrderOptions): s
   return lineas.join("\n");
 }
 
-export function buildWhatsAppUrl(message: string, phone: string = OWNER_WHATSAPP): string {
+export function buildWhatsAppUrl(
+  message: string,
+  phone: string = OWNER_WHATSAPP,
+): string {
   const encoded = encodeURIComponent(message);
   return `https://wa.me/${phone}?text=${encoded}`;
 }

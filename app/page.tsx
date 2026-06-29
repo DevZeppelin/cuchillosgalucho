@@ -1,5 +1,5 @@
 import { Hero } from "@/app/components/Hero";
-import { MaterialsSection } from "@/app/components/MaterialsSection";
+import { ShowcaseSectionServer } from "@/app/components/ShowcaseSectionServer";
 import { CatalogGrid } from "@/app/components/CatalogGrid";
 import { Reveal } from "@/app/components/Reveal";
 import { CTABanner } from "@/app/components/CTABanner";
@@ -13,7 +13,7 @@ export default async function Home() {
     <>
       <Hero />
 
-      <MaterialsSection />
+      <ShowcaseSectionServer />
 
       {/* Catálogo completo */}
       <section id="catalogo" className="relative py-20 lg:py-28 scroll-mt-20">

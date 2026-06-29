@@ -116,7 +116,7 @@ export function MayoristasGate({ products }: { products: Product[] }) {
           <p className="mt-3 text-sm text-steel-300">
             Ingresá tu número de celular para acceder. ¿Aún no tenés acceso?{" "}
             <a
-              href="https://wa.me/5491100000000?text=Hola%2C%20quiero%20pedir%20acceso%20mayorista"
+              href="https://wa.me/5492241672338?text=Hola%2C%20quiero%20pedir%20acceso%20mayorista"
               target="_blank"
               rel="noopener noreferrer"
               className="text-copper-400 hover:text-copper-300 underline"

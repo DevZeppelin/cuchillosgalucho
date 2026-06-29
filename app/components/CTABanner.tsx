@@ -21,8 +21,8 @@ export function CTABanner() {
                 para mayoristas.
               </h2>
               <p className="mt-6 text-lg text-steel-200 leading-relaxed max-w-xl">
-                Precios mayoristas, catálogo completo y pedidos coordinados. Ingresá con
-                tu usuario asignado y armá la orden en minutos.
+                Precios mayoristas, catálogo completo y pedidos coordinados.
+                Ingresá con tu usuario asignado y armá la orden en minutos.
               </p>
               <div className="mt-8 flex flex-col sm:flex-row gap-4">
                 <Link
@@ -31,11 +31,17 @@ export function CTABanner() {
                 >
                   Ingresar como mayorista
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                    <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    <path
+                      d="M5 12h14M13 6l6 6-6 6"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                   </svg>
                 </Link>
                 <a
-                  href="https://wa.me/5491100000000?text=Hola%2C%20quiero%20pedir%20acceso%20mayorista"
+                  href="https://wa.me/5492241672338?text=Hola%2C%20quiero%20pedir%20acceso%20mayorista"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="border border-steel-300/30 text-steel-100 hover:border-copper-400 hover:text-copper-300 uppercase tracking-widest text-sm px-8 py-4 rounded-md transition-all inline-flex items-center justify-center"
