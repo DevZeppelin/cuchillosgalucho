@@ -12,7 +12,7 @@ export default async function MayoristasPage() {
   const products = await getCatalogo();
   return (
     <div className="relative">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(201,117,37,0.12),transparent_55%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(117,99,69,0.08),transparent_55%)]" />
 
       <section className="relative pt-28 lg:pt-40 pb-10">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 text-center">

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 
 export function Hero() {
@@ -11,8 +12,8 @@ export function Hero() {
     <section className="relative min-h-[100dvh] overflow-hidden flex items-center">
       {/* Fondo: gradiente + partículas de chispa */}
       <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_120%,rgba(201,117,37,0.25),transparent_55%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_80%_-10%,rgba(255,180,80,0.12),transparent_55%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_120%,rgba(117,99,69,0.14),transparent_55%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_80%_-10%,rgba(100,85,60,0.07),transparent_55%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(6,8,11,0)_0%,rgba(6,8,11,0.6)_70%,rgba(6,8,11,1)_100%)]" />
         {/* Líneas de grano */}
         <div
@@ -35,8 +36,24 @@ export function Hero() {
 
       <div className="relative max-w-7xl mx-auto px-6 lg:px-8 w-full pt-4 md:pt-20 pb-24">
         <div className="max-w-3xl">
+          {/* Logo prominente */}
           <div
-            className={`flex items-center gap-3 mb-6 transition-all duration-700 ${
+            className={`mb-8 flex justify-center md:justify-start transition-all duration-700 ${
+              mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+            }`}
+          >
+            <Image
+              src="/logo.png"
+              alt="Cuchillos Galucho"
+              width={420}
+              height={168}
+              priority
+              className="invert h-36 md:h-40 w-auto drop-shadow-[0_0_40px_rgba(255,255,255,0.22)]"
+            />
+          </div>
+
+          <div
+            className={`flex items-center gap-3 mb-6 transition-all duration-700 delay-100 ${
               mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
             }`}
           >
@@ -61,8 +78,8 @@ export function Hero() {
               mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
-            Cuchillos forjados a mano en Argentina. Acero al carbono, maderas nobles y
-            cobre martillado. Piezas pensadas para durar generaciones.
+            Cuchillos forjados a mano en Argentina. Acero Inoxidable 420 y maderas
+            nobles argentinas. Piezas pensadas para durar generaciones.
           </p>
 
           <div
@@ -125,7 +142,7 @@ function BladeSvg() {
   return (
     <svg
       viewBox="0 0 800 400"
-      className="w-full h-auto drop-shadow-[0_30px_60px_rgba(201,117,37,0.18)] animate-float"
+      className="w-full h-auto drop-shadow-[0_30px_60px_rgba(117,99,69,0.10)] animate-float"
       aria-hidden="true"
     >
       <defs>
@@ -143,9 +160,9 @@ function BladeSvg() {
           <stop offset="100%" stopColor="#22140a" />
         </linearGradient>
         <linearGradient id="copperGrad" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#ecaa5c" />
-          <stop offset="50%" stopColor="#c97525" />
-          <stop offset="100%" stopColor="#7f4516" />
+          <stop offset="0%" stopColor="#97a4b4" />
+          <stop offset="50%" stopColor="#4a5666" />
+          <stop offset="100%" stopColor="#262d38" />
         </linearGradient>
         <filter id="glow">
           <feGaussianBlur stdDeviation="3" result="b" />
@@ -170,9 +187,9 @@ function BladeSvg() {
         fill="none"
       />
 
-      {/* Virola de cobre */}
+      {/* Virola de acero */}
       <rect x="540" y="178" width="22" height="44" rx="3" fill="url(#copperGrad)" />
-      <rect x="538" y="178" width="2" height="44" fill="#fae0bf" opacity="0.6" />
+      <rect x="538" y="178" width="2" height="44" fill="#c4cdd8" opacity="0.6" />
 
       {/* Cabo de madera */}
       <path
@@ -189,9 +206,9 @@ function BladeSvg() {
       />
       {/* Remache */}
       <circle cx="680" cy="200" r="5" fill="url(#copperGrad)" />
-      <circle cx="680" cy="200" r="2" fill="#fae0bf" opacity="0.7" />
+      <circle cx="680" cy="200" r="2" fill="#c4cdd8" opacity="0.7" />
 
-      {/* Cabeza de cobre */}
+      {/* Cabeza de acero */}
       <path
         d="M 758 178 Q 778 178 778 200 Q 778 222 758 222 Z"
         fill="url(#copperGrad)"

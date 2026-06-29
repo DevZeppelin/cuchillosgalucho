@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useCart } from "./CartProvider";
@@ -51,15 +51,16 @@ export function Header() {
           : "bg-transparent border-b border-transparent"
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16 lg:h-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-20 lg:h-24">
         <Link href="/" className="flex items-center gap-3 group">
           <Image
             src="/logo.png"
             alt="Cuchillos Galucho"
-            width={120}
-            height={48}
-            priority
-            className="invert h-14 lg:h-18 w-auto group-hover:scale-105 transition-transform"
+            width={160}
+            height={64}
+            className={`invert h-10 w-auto transition-all duration-500 group-hover:scale-105 ${
+              scrolled ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2 pointer-events-none"
+            }`}
           />
         </Link>
 

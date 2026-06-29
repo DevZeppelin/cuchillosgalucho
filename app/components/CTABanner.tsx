@@ -9,7 +9,7 @@ export function CTABanner() {
           <div className="relative rounded-3xl overflow-hidden border border-copper-600/30">
             <div className="absolute inset-0 wood-texture opacity-90" />
             <div className="absolute inset-0 bg-gradient-to-r from-steel-950/95 via-steel-950/80 to-steel-950/40" />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(201,117,37,0.4),transparent_60%)]" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(117,99,69,0.25),transparent_60%)]" />
 
             <div className="relative px-8 sm:px-12 lg:px-16 py-16 lg:py-20 max-w-3xl">
               <p className="text-xs uppercase tracking-[0.4em] text-copper-300 mb-4">

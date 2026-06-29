@@ -15,7 +15,7 @@ export default function NosotrosPage() {
     <>
       {/* Encabezado */}
       <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_-20%,rgba(201,117,37,0.18),transparent_55%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_-20%,rgba(117,99,69,0.10),transparent_55%)]" />
         <div className="relative max-w-4xl mx-auto px-6 lg:px-8 text-center">
           <p className="text-xs uppercase tracking-[0.4em] text-copper-400 mb-4">
             Cuchillos Galucho

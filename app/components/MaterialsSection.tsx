@@ -4,10 +4,10 @@ import { useEffect, useRef, useState } from "react";
 
 const materiales = [
   {
-    nombre: "Acero",
+    nombre: "Acero Inoxidable 420",
     parte: "La hoja",
     descripcion:
-      "Carbono de alta dureza, templado al fuego y enfriado en aceite. Filo que pide menos y trabaja más.",
+      "Acero Inoxidable 420 de alta dureza. Resistente a la corrosión, filo duradero y fácil de mantener.",
     // polished steel sphere: dark edges, silver highlight off-center
     circleBg: [
       "radial-gradient(circle at 28% 22%, rgba(255,255,255,0.15) 0%, transparent 50%)",
@@ -38,24 +38,6 @@ const materiales = [
     borderHover: "rgba(199,153,98,0.9)",
     auroraColor: "rgba(168,119,65,0.07)",
     icono: WoodIcon,
-  },
-  {
-    nombre: "Cobre",
-    parte: "Las virolas",
-    descripcion:
-      "Virolas y guarniciones de cobre martillado. Una textura única, viva, que envejece con vos.",
-    // hammered copper: warm highlight shifted up-left, dark warm edges
-    circleBg: [
-      "radial-gradient(circle at 28% 22%, rgba(255,255,255,0.18) 0%, transparent 48%)",
-      "radial-gradient(circle at 38% 32%, #f3c285 0%, #ecaa5c 9%, #e08e3a 24%, #c97525 42%, #a85d1c 62%, #7f4516 79%, #57300f 100%)",
-    ].join(", "),
-    accentColor: "#ecaa5c",
-    glowColor: "rgba(201,117,37,0.42)",
-    shineColor: "rgba(243,194,133,0.34)",
-    borderBase: "rgba(201,117,37,0.22)",
-    borderHover: "rgba(236,170,92,0.9)",
-    auroraColor: "rgba(201,117,37,0.085)",
-    icono: CopperIcon,
   },
 ];
 
@@ -107,7 +89,7 @@ export function MaterialsSection() {
             Los materiales
           </p>
           <h2 className="font-display text-4xl md:text-5xl text-steel-50 leading-tight">
-            Tres elementos.{" "}
+            Dos materiales.{" "}
             <em className="text-gradient-copper not-italic">Una pieza.</em>
           </h2>
         </div>
@@ -116,14 +98,14 @@ export function MaterialsSection() {
         <div aria-hidden className="flex items-center justify-center gap-3 mb-16">
           <div
             className="h-px w-20 opacity-25"
-            style={{ background: "linear-gradient(90deg, transparent, #c97525)" }}
+            style={{ background: "linear-gradient(90deg, transparent, #756345)" }}
           />
           <div className="w-1 h-1 rounded-full bg-copper-600 opacity-50" />
           <div className="w-1.5 h-1.5 rounded-full bg-copper-400 opacity-70" />
           <div className="w-1 h-1 rounded-full bg-copper-600 opacity-50" />
           <div
             className="h-px w-20 opacity-25"
-            style={{ background: "linear-gradient(270deg, transparent, #c97525)" }}
+            style={{ background: "linear-gradient(270deg, transparent, #756345)" }}
           />
         </div>
 
@@ -255,28 +237,3 @@ function WoodIcon() {
   );
 }
 
-function CopperIcon() {
-  return (
-    <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
-      <defs>
-        <linearGradient id="ci-g" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#f3c285" />
-          <stop offset="35%" stopColor="#e08e3a" />
-          <stop offset="70%" stopColor="#c97525" />
-          <stop offset="100%" stopColor="#7f4516" />
-        </linearGradient>
-        <linearGradient id="ci-hi" x1="0.2" y1="0" x2="0.8" y2="0.5">
-          <stop offset="0%" stopColor="#f3c285" stopOpacity="0.55" />
-          <stop offset="100%" stopColor="#f3c285" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      {/* virola / ring */}
-      <path d="M12 2.5 L19.5 8.5 L17.5 21.5 L6.5 21.5 L4.5 8.5 Z" fill="url(#ci-g)" stroke="#7f4516" strokeWidth="0.35" />
-      {/* top highlight triangle */}
-      <path d="M12 2.5 L19.5 8.5 L16 8.5 L12 4 L8 8.5 L4.5 8.5 Z" fill="url(#ci-hi)" />
-      {/* hammered lines */}
-      <path d="M8 12 L16 12 M8.5 15.2 L15.5 15.2 M9.2 18.2 L14.8 18.2"
-        stroke="#321b08" strokeWidth="0.5" opacity="0.6" strokeLinecap="round" />
-    </svg>
-  );
-}

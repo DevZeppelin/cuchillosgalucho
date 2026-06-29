@@ -26,17 +26,17 @@
   --color-wood-800: #3a2210;
   --color-wood-900: #22140a;
 
-  /* Cobre — acento dorado/anaranjado */
-  --color-copper-50: #fdf3e7;
-  --color-copper-100: #fae0bf;
-  --color-copper-200: #f3c285;
-  --color-copper-300: #ecaa5c;
-  --color-copper-400: #e08e3a;
-  --color-copper-500: #c97525;
-  --color-copper-600: #a85d1c;
-  --color-copper-700: #7f4516;
-  --color-copper-800: #57300f;
-  --color-copper-900: #321b08;
+  /* Acento — oro apagado / acero bruñido */
+  --color-copper-50:  #f6f2ec;
+  --color-copper-100: #e8e0d0;
+  --color-copper-200: #cfc0a2;
+  --color-copper-300: #b09e7e;
+  --color-copper-400: #92805e;
+  --color-copper-500: #756345;
+  --color-copper-600: #584b33;
+  --color-copper-700: #403623;
+  --color-copper-800: #2a2216;
+  --color-copper-900: #16110b;
 
   --font-sans: var(--font-geist-sans);
   --font-display: var(--font-cormorant);
@@ -54,8 +54,8 @@
   }
   body {
     background:
-      radial-gradient(1200px 600px at 80% -10%, rgba(201, 117, 37, 0.08), transparent 60%),
-      radial-gradient(900px 500px at -10% 30%, rgba(139, 90, 43, 0.07), transparent 60%),
+      radial-gradient(1200px 600px at 80% -10%, rgba(117, 99, 69, 0.05), transparent 60%),
+      radial-gradient(900px 500px at -10% 30%, rgba(80, 65, 40, 0.04), transparent 60%),
       var(--color-steel-950);
     color: var(--color-steel-50);
     min-height: 100vh;
@@ -88,7 +88,7 @@
   }
 
   .text-gradient-copper {
-    background: linear-gradient(135deg, #f3c285 0%, #c97525 50%, #ecaa5c 100%);
+    background: linear-gradient(135deg, #cfc0a2 0%, #756345 50%, #b09e7e 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -143,8 +143,8 @@
   to { opacity: 1; transform: translateY(0); }
 }
 @keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(201, 117, 37, 0.55); }
-  50% { box-shadow: 0 0 26px 8px rgba(201, 117, 37, 0.15); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(117, 99, 69, 0.45); }
+  50% { box-shadow: 0 0 26px 8px rgba(117, 99, 69, 0.12); }
 }
 @keyframes slide-in-right {
   from { transform: translateX(100%); }

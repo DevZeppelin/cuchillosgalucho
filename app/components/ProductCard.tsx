@@ -67,7 +67,7 @@ export function ProductCard({ product, showPriceMayorista, badge }: ProductCardP
               className="absolute inset-0 pointer-events-none"
               style={{
                 background:
-                  "radial-gradient(ellipse at 30% 20%, rgba(201,117,37,0.08) 0%, transparent 55%)",
+                  "radial-gradient(ellipse at 30% 20%, rgba(117,99,69,0.06) 0%, transparent 55%)",
               }}
             />
             <div className="relative w-3/5 aspect-square flex items-center justify-center">
@@ -110,13 +110,13 @@ export function ProductCard({ product, showPriceMayorista, badge }: ProductCardP
         )}
 
         {/* Materiales */}
-        <div className="absolute top-3 right-3 flex flex-wrap gap-1 justify-end max-w-[60%] z-10">
+        <div className="absolute top-3 right-3 flex flex-wrap gap-1 justify-end max-w-[70%] z-10">
           {product.materiales.slice(0, 3).map((m) => (
             <span
               key={m}
-              className="px-2 py-0.5 text-[10px] uppercase tracking-wider bg-steel-950/70 backdrop-blur-sm text-steel-100 border border-steel-700/60 rounded-full"
+              className="px-2 py-0.5 text-[9px] uppercase tracking-wider bg-steel-950/70 backdrop-blur-sm text-steel-100 border border-steel-700/60 rounded-full"
             >
-              {m}
+              {m.toLowerCase() === "acero" ? "Acero Inox. 420" : m}
             </span>
           ))}
         </div>
@@ -150,7 +150,7 @@ export function ProductCard({ product, showPriceMayorista, badge }: ProductCardP
                     className={[
                       "px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all duration-200",
                       active
-                        ? "bg-copper-500 text-steel-950 shadow-[0_0_12px_-2px_rgba(201,117,37,0.5)]"
+                        ? "bg-copper-500 text-steel-950 shadow-[0_0_12px_-2px_rgba(117,99,69,0.4)]"
                         : "bg-steel-800 text-steel-300 border border-steel-700 hover:border-copper-600/50 hover:text-copper-300",
                     ].join(" ")}
                   >

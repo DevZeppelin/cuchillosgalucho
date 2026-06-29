@@ -65,10 +65,9 @@ export function Footer() {
             Materiales
           </h3>
           <ul className="space-y-2 text-sm text-steel-300">
-            <li>Acero al carbono</li>
+            <li>Acero Inoxidable 420</li>
             <li>Madera de algarrobo</li>
             <li>Madera de jacarandá</li>
-            <li>Cobre martillado</li>
             <li>Cuero suela natural</li>
           </ul>
         </div>

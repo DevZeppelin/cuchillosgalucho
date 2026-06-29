@@ -5,7 +5,7 @@ type Post = {
   bajada: string;
   likes: string;
   gradient: string;
-  icono: "fuego" | "forja" | "cobre" | "madera" | "edicion" | "cuero";
+  icono: "fuego" | "forja" | "acero" | "madera" | "edicion" | "cuero";
 };
 
 const POSTS: Post[] = [
@@ -13,7 +13,7 @@ const POSTS: Post[] = [
     titulo: "Asado de domingo",
     bajada: "El ritual del fuego",
     likes: "2.4K",
-    gradient: "from-copper-700 via-copper-500 to-wood-800",
+    gradient: "from-wood-800 via-wood-600 to-steel-900",
     icono: "fuego",
   },
   {
@@ -24,11 +24,11 @@ const POSTS: Post[] = [
     icono: "forja",
   },
   {
-    titulo: "Detalle de cobre",
-    bajada: "Martillado a mano",
+    titulo: "Filo Inox 420",
+    bajada: "Acero de alta calidad",
     likes: "1.8K",
-    gradient: "from-copper-600 via-copper-400 to-copper-800",
-    icono: "cobre",
+    gradient: "from-steel-600 via-steel-400 to-steel-800",
+    icono: "acero",
   },
   {
     titulo: "Cabo en algarrobo",
@@ -41,7 +41,7 @@ const POSTS: Post[] = [
     titulo: "Edición limitada",
     bajada: "Pieza numerada",
     likes: "4.2K",
-    gradient: "from-wood-900 via-copper-700 to-steel-900",
+    gradient: "from-wood-900 via-steel-700 to-steel-900",
     icono: "edicion",
   },
   {
@@ -160,7 +160,7 @@ function PostTile({ post }: { post: Post }) {
         aria-hidden
         className="pointer-events-none absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
         style={{
-          boxShadow: "inset 0 0 0 1px rgba(236, 170, 92, 0.45)",
+          boxShadow: "inset 0 0 0 1px rgba(176, 158, 126, 0.40)",
         }}
       />
     </a>
@@ -203,21 +203,22 @@ function PostIcon({ kind }: { kind: Post["icono"] }) {
           />
         </svg>
       );
-    case "cobre":
-      // gota brillante
+    case "acero":
+      // filo de cuchillo
       return (
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
           <path
-            d="M12 2c4 5 7 8.5 7 12a7 7 0 11-14 0c0-3.5 3-7 7-12z"
+            d="M3 13 L13 3 L21 5 L21 11 L11 21 Z"
             fill="currentColor"
+            opacity="0.9"
           />
           <path
-            d="M9 13c-.5 1.5 0 3 1.5 3.5"
-            stroke="rgba(6,8,11,0.5)"
-            strokeWidth="1.4"
+            d="M6 16 L14 8"
+            stroke="rgba(255,255,255,0.45)"
+            strokeWidth="1"
             strokeLinecap="round"
-            fill="none"
           />
+          <circle cx="17" cy="7" r="1.2" fill="rgba(6,8,11,0.5)" />
         </svg>
       );
     case "madera":

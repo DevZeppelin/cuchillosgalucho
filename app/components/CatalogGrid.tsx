@@ -105,7 +105,7 @@ export function CatalogGrid({ products, showPriceMayorista }: CatalogGridProps) 
       <div className="relative mb-5 group">
         <div
           className="absolute inset-0 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"
-          style={{ boxShadow: "0 0 0 1px rgba(201,117,37,0.5), 0 0 20px rgba(201,117,37,0.1)" }}
+          style={{ boxShadow: "0 0 0 1px rgba(117,99,69,0.45), 0 0 20px rgba(117,99,69,0.08)" }}
         />
         <svg
           className="absolute left-4 top-1/2 -translate-y-1/2 text-steel-500 group-focus-within:text-copper-400 transition-colors duration-200 pointer-events-none"
@@ -184,7 +184,7 @@ export function CatalogGrid({ products, showPriceMayorista }: CatalogGridProps) 
         <div
           aria-hidden
           className="flex-1 h-px"
-          style={{ background: "linear-gradient(90deg, rgba(201,117,37,0.22), transparent)" }}
+          style={{ background: "linear-gradient(90deg, rgba(117,99,69,0.18), transparent)" }}
         />
       </div>
 
@@ -244,7 +244,7 @@ function FilterPill({ active, label, count, icon, title, onClick }: FilterPillPr
         "text-[11px] font-semibold uppercase tracking-widest",
         "transition-all duration-300 whitespace-nowrap",
         active
-          ? "bg-copper-500 text-steel-950 shadow-[0_0_28px_-4px_rgba(201,117,37,0.65)]"
+          ? "bg-copper-500 text-steel-950 shadow-[0_0_28px_-4px_rgba(117,99,69,0.50)]"
           : "bg-steel-900/70 border border-steel-700 text-steel-300 hover:border-copper-600/50 hover:text-copper-300",
       ].join(" ")}
     >

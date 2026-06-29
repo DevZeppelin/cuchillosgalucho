@@ -32,8 +32,8 @@ export default async function Home() {
                 <em className="text-gradient-copper not-italic">el tuyo</em>
               </h2>
               <p className="mt-4 max-w-xl mx-auto text-steel-300">
-                Filtrá por uso. Cada pieza está disponible para coordinar entrega vía
-                WhatsApp.
+                Filtrá por uso. Cada pieza está disponible para coordinar
+                entrega vía WhatsApp.
               </p>
             </div>
           </Reveal>
@@ -45,7 +45,12 @@ export default async function Home() {
 
       <FamososCarousel
         eyebrow="Los que los eligen"
-        titulo={<>De <em className="text-gradient-copper not-italic">la cocina</em> al escenario.</>}
+        titulo={
+          <>
+            De <em className="text-gradient-copper not-italic">la cocina</em> al
+            escenario.
+          </>
+        }
         descripcion="Referentes que eligieron Galucho. Desde asadores profesionales hasta artistas."
       />
     </>
