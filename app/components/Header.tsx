@@ -59,7 +59,7 @@ export function Header() {
             width={120}
             height={48}
             priority
-            className="invert h-10 lg:h-12 w-auto group-hover:scale-105 transition-transform"
+            className="invert h-14 lg:h-18 w-auto group-hover:scale-105 transition-transform"
           />
         </Link>
 
@@ -136,9 +136,19 @@ export function Header() {
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
               {menuOpen ? (
-                <path d="M6 6l12 12M18 6l-12 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                <path
+                  d="M6 6l12 12M18 6l-12 12"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
               ) : (
-                <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                <path
+                  d="M4 7h16M4 12h16M4 17h16"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
               )}
             </svg>
           </button>

@@ -18,7 +18,6 @@ export function ProductCard({ product, showPriceMayorista, badge }: ProductCardP
   const [imgError, setImgError] = useState(false);
 
   const useLogo = imgError || !product.imagen || product.imagen === "/logo.png";
-
   const useMayPrice = (showPriceMayorista || isMayorista) && selectedSize.precioMayorista;
   const precio = useMayPrice ? selectedSize.precioMayorista! : selectedSize.precio;
 
@@ -49,15 +48,36 @@ export function ProductCard({ product, showPriceMayorista, badge }: ProductCardP
       <div className="pointer-events-none absolute -inset-px rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-copper-500/20 via-transparent to-wood-700/10" />
 
       {/* ── Imagen ─────────────────────────────────────────── */}
-      <div className="relative aspect-[4/3] overflow-hidden bg-steel-900 shrink-0">
+      <div
+        className="relative aspect-[4/3] shrink-0 overflow-hidden"
+        style={{ transform: "translateZ(0)" /* fuerza GPU, elimina artefacto de borde */ }}
+      >
         {useLogo ? (
-          <div className="absolute inset-0 flex items-center justify-center p-10">
-            <Image
-              src="/logo.png"
-              alt="Cuchillos Galucho"
-              fill
-              className="object-contain opacity-15 transition-opacity duration-500 group-hover:opacity-25"
+          /* Fondo metalizado cuando no hay foto */
+          <div
+            className="absolute inset-0 flex items-center justify-center"
+            style={{
+              background:
+                "radial-gradient(ellipse at 50% 35%, #36404e 0%, #181d25 45%, #0e1218 75%, #06080b 100%)",
+            }}
+          >
+            {/* Brillo sutil en la esquina superior */}
+            <div
+              aria-hidden
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background:
+                  "radial-gradient(ellipse at 30% 20%, rgba(201,117,37,0.08) 0%, transparent 55%)",
+              }}
             />
+            <div className="relative w-3/5 aspect-square flex items-center justify-center">
+              <Image
+                src="/logo.png"
+                alt="Cuchillos Galucho"
+                fill
+                className="object-contain invert opacity-20 group-hover:opacity-35 transition-opacity duration-500"
+              />
+            </div>
           </div>
         ) : (
           <Image
@@ -70,23 +90,31 @@ export function ProductCard({ product, showPriceMayorista, badge }: ProductCardP
           />
         )}
 
+        {/* Gradiente inferior solo con foto real */}
         {!useLogo && (
           <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-steel-950/90 via-steel-950/30 to-transparent" />
         )}
 
+        {/* Capa inset muy sutil que tapa el artefacto de borde de la imagen */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
+          style={{ boxShadow: "inset 0 0 0 1px rgba(6,8,11,0.55)" }}
+        />
+
         {/* Badge */}
         {(badge || product.destacado) && (
-          <span className="absolute top-3 left-3 px-2.5 py-1 text-[10px] uppercase tracking-widest font-semibold bg-copper-500 text-steel-950 rounded-full shadow">
+          <span className="absolute top-3 left-3 px-2.5 py-1 text-[10px] uppercase tracking-widest font-semibold bg-copper-500 text-steel-950 rounded-full shadow z-10">
             {badge ?? "Destacado"}
           </span>
         )}
 
         {/* Materiales */}
-        <div className="absolute top-3 right-3 flex flex-wrap gap-1 justify-end max-w-[60%]">
+        <div className="absolute top-3 right-3 flex flex-wrap gap-1 justify-end max-w-[60%] z-10">
           {product.materiales.slice(0, 3).map((m) => (
             <span
               key={m}
-              className="px-2 py-0.5 text-[10px] uppercase tracking-wider bg-steel-950/70 backdrop-blur-sm text-steel-100 border border-steel-700 rounded-full"
+              className="px-2 py-0.5 text-[10px] uppercase tracking-wider bg-steel-950/70 backdrop-blur-sm text-steel-100 border border-steel-700/60 rounded-full"
             >
               {m}
             </span>
@@ -134,28 +162,25 @@ export function ProductCard({ product, showPriceMayorista, badge }: ProductCardP
           </div>
         )}
 
-        {/* Spacer */}
         <div className="flex-1" />
 
         {/* ── Precio y agregar ─────────────────────────────── */}
-        <div className="flex items-end justify-between gap-3 pt-1">
-          <div>
-            {useMayPrice && (
-              <p className="text-[10px] uppercase tracking-widest text-copper-400">
-                Precio mayorista
-              </p>
-            )}
+        <div className="flex items-center justify-between gap-3 pt-2 border-t border-steel-800/60">
+          <div className="min-w-0">
+            <p className="text-[10px] uppercase tracking-widest text-steel-500 mb-0.5">
+              {useMayPrice ? "Precio mayorista" : "Precio"}
+            </p>
             {selectedSize.precio > 0 ? (
-              <p className="font-display text-2xl text-gradient-copper tabular-nums">
+              <p className="font-display text-[1.6rem] leading-none font-semibold text-gradient-copper tabular-nums">
                 {formatARS(precio!)}
               </p>
             ) : (
-              <p className="text-sm text-steel-500 italic">Consultar precio</p>
+              <p className="text-sm text-steel-400 italic">Consultar</p>
             )}
           </div>
           <button
             onClick={handleAdd}
-            className="relative bg-copper-500 hover:bg-copper-400 text-steel-950 font-semibold text-xs uppercase tracking-widest px-4 py-2.5 rounded-md transition-all hover:scale-105 active:scale-95 flex items-center gap-1.5 shrink-0"
+            className="shrink-0 bg-copper-500 hover:bg-copper-400 text-steel-950 font-semibold text-xs uppercase tracking-widest px-4 py-2.5 rounded-md transition-all hover:scale-105 active:scale-95 flex items-center gap-1.5"
             aria-label={`Agregar ${product.nombre} al carrito`}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none">

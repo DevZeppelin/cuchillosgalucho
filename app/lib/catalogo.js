@@ -45,8 +45,33 @@ function toTitleCase(s) {
 
 function toNumber(v) {
   if (typeof v === "number") return v;
-  const n = parseFloat(String(v ?? "").replace(/\./g, "").replace(",", "."));
-  return isNaN(n) ? 0 : n;
+  // Quita símbolos de moneda, espacios y caracteres no numéricos excepto . y ,
+  const s = String(v ?? "").trim().replace(/[^\d.,]/g, "");
+  if (!s) return 0;
+
+  // Con coma → formato argentino/europeo: coma=decimal, puntos=miles
+  // "18.700,00" → 18700  |  "9.880,50" → 9880.5
+  if (s.includes(",")) {
+    return parseFloat(s.replace(/\./g, "").replace(",", ".")) || 0;
+  }
+
+  if (s.includes(".")) {
+    const parts = s.split(".");
+    const lastPart = parts[parts.length - 1];
+
+    // Un solo punto seguido de 1 o 2 dígitos → punto decimal (formato EEUU)
+    // "9880.00" → 9880  |  "9880.5" → 9880.5
+    if (parts.length === 2 && lastPart.length <= 2) {
+      return parseFloat(s) || 0;
+    }
+
+    // Punto(s) de miles: 1 punto seguido de 3 dígitos, o múltiples puntos
+    // "18.700" → 18700  |  "1.877.200" → 1877200
+    return parseFloat(s.replace(/\./g, "")) || 0;
+  }
+
+  // Sin separadores → número puro: "18700" → 18700
+  return parseFloat(s) || 0;
 }
 
 function toBoolean(v) {
