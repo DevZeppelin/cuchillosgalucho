@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { Reveal } from "@/app/components/Reveal";
+import { FamososCarousel } from "@/app/components/FamososCarousel";
 
 export const metadata: Metadata = {
   title: "Nosotros — Cuchillos Galucho",
@@ -8,25 +9,6 @@ export const metadata: Metadata = {
     "La historia de Cuchillos Galucho: forja artesanal argentina con más de 15 años de oficio y una comunidad de 40 mil seguidores.",
 };
 
-type Famoso = {
-  nombre: string;
-  rol: string;
-  foto: string;
-  destacado?: boolean;
-};
-
-const FAMOSOS: Famoso[] = [
-  {
-    nombre: "Figura principal",
-    rol: "Embajador de la marca",
-    foto: "/famoso-ppal.jpeg",
-    destacado: true,
-  },
-  { nombre: "Famoso 01", rol: "Cocinero", foto: "/famoso01.jpg" },
-  { nombre: "Famoso 02", rol: "Asador profesional", foto: "/famoso02.jpg" },
-  { nombre: "Famoso 03", rol: "Músico", foto: "/famso03.jpg" },
-  { nombre: "Famoso 04", rol: "Deportista", foto: "/famoso04.jpg" },
-];
 
 export default function NosotrosPage() {
   return (
@@ -134,39 +116,17 @@ export default function NosotrosPage() {
       </section>
 
       {/* Famosos */}
-      <section className="relative py-20 lg:py-28">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8">
-          <Reveal>
-            <div className="text-center max-w-2xl mx-auto mb-14">
-              <p className="text-xs uppercase tracking-[0.4em] text-copper-400 mb-4">
-                Quienes los usan
-              </p>
-              <h2 className="font-display text-4xl md:text-5xl text-steel-50">
-                De{" "}
-                <em className="text-gradient-copper not-italic">la cocina</em> al
-                escenario.
-              </h2>
-              <p className="mt-4 text-steel-300">
-                Nuestras piezas eligen su lugar. Compartimos algunas de las personas
-                que nos hicieron el aguante.
-              </p>
-            </div>
-          </Reveal>
-
-          {/* Grid asimétrico: la principal ocupa más espacio */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 auto-rows-[minmax(0,1fr)]">
-            {FAMOSOS.map((f, i) => (
-              <Reveal
-                key={f.foto}
-                delay={i * 100}
-                className={f.destacado ? "col-span-2 md:row-span-2" : ""}
-              >
-                <FamosoCard famoso={f} />
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
+      <FamososCarousel
+        eyebrow="Quienes los usan"
+        titulo={
+          <>
+            De{" "}
+            <em className="text-gradient-copper not-italic">la cocina</em> al
+            escenario.
+          </>
+        }
+        descripcion="Nuestras piezas eligen su lugar. Compartimos algunas de las personas que nos hicieron el aguante."
+      />
 
       {/* Detrás de escena: stand + taller */}
       <section className="relative py-20 lg:py-28">
@@ -223,46 +183,6 @@ export default function NosotrosPage() {
         </div>
       </section>
     </>
-  );
-}
-
-function FamosoCard({ famoso }: { famoso: Famoso }) {
-  return (
-    <figure
-      className={`group relative w-full h-full rounded-2xl overflow-hidden bg-steel-900 border border-steel-800 hover:border-copper-600/60 transition-all duration-500 ${
-        famoso.destacado ? "aspect-square md:aspect-auto" : "aspect-[3/4]"
-      }`}
-    >
-      <Image
-        src={famoso.foto}
-        alt={famoso.nombre}
-        fill
-        sizes={
-          famoso.destacado
-            ? "(min-width: 768px) 50vw, 100vw"
-            : "(min-width: 768px) 25vw, 50vw"
-        }
-        className="object-cover group-hover:scale-105 transition-transform duration-700"
-      />
-      <div className="absolute inset-0 bg-gradient-to-t from-steel-950 via-steel-950/30 to-transparent" />
-      {famoso.destacado && (
-        <span className="absolute top-3 left-3 px-2.5 py-1 text-[10px] uppercase tracking-widest font-semibold bg-copper-500 text-steel-950 rounded-full shadow">
-          Embajador
-        </span>
-      )}
-      <figcaption className="absolute inset-x-0 bottom-0 p-5 md:p-6">
-        <p
-          className={`font-display text-steel-50 leading-tight ${
-            famoso.destacado ? "text-2xl md:text-3xl" : "text-xl"
-          }`}
-        >
-          {famoso.nombre}
-        </p>
-        <p className="text-[11px] md:text-xs uppercase tracking-widest text-copper-300 mt-1">
-          {famoso.rol}
-        </p>
-      </figcaption>
-    </figure>
   );
 }
 

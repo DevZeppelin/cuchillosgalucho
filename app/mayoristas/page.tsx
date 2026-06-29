@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { fetchProducts } from "@/app/lib/airtable";
+import { getCatalogo } from "@/app/lib/catalogo";
 import { MayoristasGate } from "./MayoristasGate";
 
 export const metadata: Metadata = {
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 };
 
 export default async function MayoristasPage() {
-  const products = await fetchProducts();
+  const products = await getCatalogo();
   return (
     <div className="relative">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(201,117,37,0.12),transparent_55%)]" />

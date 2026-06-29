@@ -1,6 +1,6 @@
 "use server";
 
-import { authenticateWholesaler } from "@/app/lib/airtable";
+import { getAccesoWEB } from "@/app/lib/catalogo";
 
 export interface LoginResult {
   ok: boolean;
@@ -10,31 +10,56 @@ export interface LoginResult {
     nombreComercial: string;
     descuento: number;
     expira: number;
+    mail?: string;
+    celular?: string;
   };
 }
 
-const SESSION_DURATION_MS = 1000 * 60 * 60 * 8; // 8 horas
+const SESSION_MS = 1000 * 60 * 60 * 8; // 8 horas
+
+// Normaliza un celular a solo dígitos
+function normCel(v: string): string {
+  return v.replace(/\D/g, "");
+}
 
 export async function loginMayoristaAction(formData: FormData): Promise<LoginResult> {
-  const usuario = String(formData.get("usuario") ?? "").trim();
-  const password = String(formData.get("password") ?? "");
+  const celularRaw = String(formData.get("celular") ?? "").trim();
 
-  if (!usuario || !password) {
-    return { ok: false, error: "Completá usuario y contraseña" };
+  if (!celularRaw) {
+    return { ok: false, error: "Ingresá tu número de celular" };
   }
 
-  const result = await authenticateWholesaler(usuario, password);
-  if (!result.ok) {
-    return { ok: false, error: result.error ?? "Credenciales inválidas" };
+  const celular = normCel(celularRaw);
+  if (celular.length < 8) {
+    return { ok: false, error: "El número no parece válido" };
   }
+
+  const lista = await getAccesoWEB();
+
+  // Buscar coincidencia — el número puede venir con o sin código de país
+  const encontrado = lista.find((r) => {
+    const rc = normCel(r.celular);
+    return rc === celular || rc.endsWith(celular) || celular.endsWith(rc);
+  });
+
+  if (!encontrado) {
+    return { ok: false, error: "Celular no registrado. Pedí acceso por WhatsApp." };
+  }
+
+  const nombreComercial =
+    encontrado.nombre ||
+    (encontrado.mail ? encontrado.mail.split("@")[0] : "") ||
+    "Mayorista";
 
   return {
     ok: true,
     session: {
-      usuario,
-      nombreComercial: result.nombreComercial ?? usuario,
-      descuento: result.descuento ?? 0,
-      expira: Date.now() + SESSION_DURATION_MS,
+      usuario: celular,
+      nombreComercial,
+      descuento: 0,
+      expira: Date.now() + SESSION_MS,
+      mail: encontrado.mail || undefined,
+      celular,
     },
   };
 }

@@ -212,6 +212,81 @@
   transform: translateY(0);
 }
 
+/* Material cards — metallic shine sweep */
+@keyframes material-shine {
+  0%   { transform: translateX(-220%) skewX(-22deg); opacity: 0; }
+  6%   { opacity: 1; }
+  94%  { opacity: 1; }
+  100% { transform: translateX(320%) skewX(-22deg); opacity: 0; }
+}
+
+/* Material circles — scale-in reveal */
+@keyframes circle-in {
+  from { opacity: 0; transform: scale(0.65) translateY(32px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.material-circle-item {
+  opacity: 0;
+}
+.material-circle-item.circle-visible {
+  animation: circle-in 0.82s cubic-bezier(0.16, 1, 0.3, 1) var(--circle-delay, 0ms) forwards;
+}
+
+.material-circle-card {
+  box-shadow:
+    0 0 0 1px var(--card-border-base, rgba(255,255,255,0.1)),
+    0 10px 40px rgba(0,0,0,0.72);
+  transition: box-shadow 0.45s ease, transform 0.42s ease, filter 0.42s ease;
+  cursor: default;
+}
+.material-circle-card:hover {
+  box-shadow:
+    0 0 0 2.5px var(--card-border-hover, rgba(255,255,255,0.5)),
+    0 0 70px var(--card-glow, rgba(200,200,200,0.28)),
+    0 18px 52px rgba(0,0,0,0.88);
+  transform: translateY(-10px) scale(1.07);
+  filter: brightness(1.16) saturate(1.12);
+}
+
+.material-shine {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 55%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--shine-color, rgba(255,255,255,0.1)) 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 5;
+  transform: translateX(-220%) skewX(-22deg);
+  will-change: transform, opacity;
+}
+.material-shine--active {
+  animation: material-shine 1.05s cubic-bezier(0.22, 1, 0.36, 1) var(--shine-delay, 0ms) both;
+}
+
+/* Famosos carousel — infinite horizontal scroll */
+@keyframes famosos-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.famosos-wrap {
+  overflow: hidden;
+}
+.famosos-track {
+  animation: famosos-scroll 30s linear infinite;
+  will-change: transform;
+  display: flex;
+}
+.famosos-wrap:hover .famosos-track {
+  animation-play-state: paused;
+}
+
 /* Scrollbar fino */
 ::-webkit-scrollbar {
   width: 10px;

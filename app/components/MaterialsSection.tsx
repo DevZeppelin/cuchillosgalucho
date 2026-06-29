@@ -1,71 +1,200 @@
-import { Reveal } from "./Reveal";
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 
 const materiales = [
   {
     nombre: "Acero",
+    parte: "La hoja",
     descripcion:
       "Carbono de alta dureza, templado al fuego y enfriado en aceite. Filo que pide menos y trabaja más.",
-    color: "from-steel-700 via-steel-300 to-steel-700",
+    // polished steel sphere: dark edges, silver highlight off-center
+    circleBg: [
+      "radial-gradient(circle at 28% 22%, rgba(255,255,255,0.15) 0%, transparent 50%)",
+      "radial-gradient(circle at 36% 30%, #e2e7ed 0%, #c4cdd8 10%, #97a4b4 26%, #4a5666 50%, #262d38 70%, #181d25 100%)",
+    ].join(", "),
+    accentColor: "#c4cdd8",
+    glowColor: "rgba(148,163,179,0.36)",
+    shineColor: "rgba(220,232,245,0.34)",
+    borderBase: "rgba(148,163,179,0.22)",
+    borderHover: "rgba(196,205,216,0.9)",
+    auroraColor: "rgba(148,163,179,0.075)",
     icono: SteelIcon,
   },
   {
     nombre: "Madera",
+    parte: "El mango",
     descripcion:
       "Algarrobo, jacarandá, ñandubay. Maderas nobles argentinas, curadas y aceitadas a mano.",
-    color: "from-wood-700 via-wood-400 to-wood-700",
+    // end-grain wood: concentric rings from dark core to warm edge
+    circleBg: [
+      "radial-gradient(circle at 28% 22%, rgba(199,153,98,0.24) 0%, transparent 50%)",
+      "radial-gradient(circle at 50% 50%, #1a0f07 0%, #22140a 7%, #3a2210 13%, #22140a 17%, #553318 23%, #22140a 27%, #6e4520 33%, #22140a 37%, #8b5a2b 43%, #22140a 47%, #a87741 55%, #22140a 59%, #c79962 67%, #a87741 72%, #8b5a2b 80%, #3a2210 90%, #1a0f07 100%)",
+    ].join(", "),
+    accentColor: "#c79962",
+    glowColor: "rgba(168,119,65,0.38)",
+    shineColor: "rgba(224,196,140,0.3)",
+    borderBase: "rgba(168,119,65,0.22)",
+    borderHover: "rgba(199,153,98,0.9)",
+    auroraColor: "rgba(168,119,65,0.07)",
     icono: WoodIcon,
   },
   {
     nombre: "Cobre",
+    parte: "Las virolas",
     descripcion:
       "Virolas y guarniciones de cobre martillado. Una textura única, viva, que envejece con vos.",
-    color: "from-copper-600 via-copper-300 to-copper-600",
+    // hammered copper: warm highlight shifted up-left, dark warm edges
+    circleBg: [
+      "radial-gradient(circle at 28% 22%, rgba(255,255,255,0.18) 0%, transparent 48%)",
+      "radial-gradient(circle at 38% 32%, #f3c285 0%, #ecaa5c 9%, #e08e3a 24%, #c97525 42%, #a85d1c 62%, #7f4516 79%, #57300f 100%)",
+    ].join(", "),
+    accentColor: "#ecaa5c",
+    glowColor: "rgba(201,117,37,0.42)",
+    shineColor: "rgba(243,194,133,0.34)",
+    borderBase: "rgba(201,117,37,0.22)",
+    borderHover: "rgba(236,170,92,0.9)",
+    auroraColor: "rgba(201,117,37,0.085)",
     icono: CopperIcon,
   },
 ];
 
 export function MaterialsSection() {
-  return (
-    <section className="relative py-24 lg:py-36">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <Reveal>
-          <div className="max-w-2xl mb-16">
-            <p className="text-xs uppercase tracking-[0.4em] text-copper-400 mb-4">
-              Los materiales
-            </p>
-            <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-steel-50 leading-tight">
-              Tres elementos.{" "}
-              <em className="text-gradient-copper not-italic">Una pieza</em>{" "}
-              que perdura.
-            </h2>
-            <p className="mt-6 text-lg text-steel-300 leading-relaxed">
-              Trabajamos con los mismos materiales que nuestros abuelos. Sin atajos, sin
-              shortcuts. Cada cuchillo nace del fuego y se termina con paciencia.
-            </p>
-          </div>
-        </Reveal>
+  const sectionRef = useRef<HTMLElement>(null);
+  const [visible, setVisible] = useState(false);
 
-        <div className="grid gap-6 md:grid-cols-3">
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          obs.disconnect();
+        }
+      },
+      { threshold: 0.12 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  return (
+    <section ref={sectionRef} className="relative py-20 lg:py-28 overflow-hidden">
+      {/* Aurora ambiental detrás de cada círculo */}
+      <div aria-hidden className="absolute inset-0 pointer-events-none">
+        {materiales.map((m, i) => (
+          <div
+            key={m.nombre}
+            className="absolute rounded-full"
+            style={{
+              top: "58%",
+              left: `${16 + i * 34}%`,
+              width: 480,
+              height: 480,
+              transform: "translate(-50%, -50%)",
+              background: `radial-gradient(circle, ${m.auroraColor} 0%, transparent 72%)`,
+            }}
+          />
+        ))}
+      </div>
+
+      <div className="max-w-5xl mx-auto px-6 lg:px-8 relative">
+
+        {/* Título centrado */}
+        <div className="text-center mb-12">
+          <p className="text-[10px] uppercase tracking-[0.45em] text-copper-400 mb-4">
+            Los materiales
+          </p>
+          <h2 className="font-display text-4xl md:text-5xl text-steel-50 leading-tight">
+            Tres elementos.{" "}
+            <em className="text-gradient-copper not-italic">Una pieza.</em>
+          </h2>
+        </div>
+
+        {/* Separador decorativo */}
+        <div aria-hidden className="flex items-center justify-center gap-3 mb-16">
+          <div
+            className="h-px w-20 opacity-25"
+            style={{ background: "linear-gradient(90deg, transparent, #c97525)" }}
+          />
+          <div className="w-1 h-1 rounded-full bg-copper-600 opacity-50" />
+          <div className="w-1.5 h-1.5 rounded-full bg-copper-400 opacity-70" />
+          <div className="w-1 h-1 rounded-full bg-copper-600 opacity-50" />
+          <div
+            className="h-px w-20 opacity-25"
+            style={{ background: "linear-gradient(270deg, transparent, #c97525)" }}
+          />
+        </div>
+
+        {/* Tres círculos */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-14 md:gap-16 lg:gap-24">
           {materiales.map((m, i) => {
             const Icono = m.icono;
             return (
-              <Reveal key={m.nombre} delay={i * 120}>
-                <div className="group relative h-full p-8 rounded-2xl bg-steel-900/60 border border-steel-800 hover:border-copper-600/50 transition-all duration-500 overflow-hidden">
+              <div
+                key={m.nombre}
+                className={`material-circle-item flex flex-col items-center gap-6${visible ? " circle-visible" : ""}`}
+                style={{ "--circle-delay": `${i * 150}ms` } as React.CSSProperties}
+              >
+                {/* Círculo de material */}
+                <div
+                  className="material-circle-card group relative w-40 h-40 md:w-48 md:h-48 lg:w-52 lg:h-52 rounded-full overflow-hidden"
+                  style={
+                    {
+                      background: m.circleBg,
+                      "--card-glow": m.glowColor,
+                      "--card-border-base": m.borderBase,
+                      "--card-border-hover": m.borderHover,
+                    } as React.CSSProperties
+                  }
+                >
+                  {/* Sweep de brillo al scrollear */}
                   <div
-                    className={`absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-500 bg-gradient-to-br ${m.color}`}
+                    aria-hidden
+                    className={`material-shine${visible ? " material-shine--active" : ""}`}
+                    style={
+                      {
+                        "--shine-color": m.shineColor,
+                        "--shine-delay": `${i * 200 + 550}ms`,
+                      } as React.CSSProperties
+                    }
                   />
-                  <div className="relative">
-                    <div className="w-16 h-16 rounded-full bg-steel-950 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500 border border-copper-700/50">
+
+                  {/* Ícono centrado con badge oscuro */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div
+                      className="w-14 h-14 rounded-full flex items-center justify-center transition-transform duration-500 group-hover:scale-110"
+                      style={{
+                        background: "rgba(0,0,0,0.36)",
+                        boxShadow:
+                          "0 0 14px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.06)",
+                      }}
+                    >
                       <Icono />
                     </div>
-                    <h3 className="font-display text-3xl text-steel-50 mb-3">
-                      {m.nombre}
-                    </h3>
-                    <div className="hairline-divider mb-4 w-16 origin-left animate-draw-line" />
-                    <p className="text-steel-300 leading-relaxed">{m.descripcion}</p>
                   </div>
                 </div>
-              </Reveal>
+
+                {/* Texto bajo el círculo — siempre sobre fondo oscuro, máxima legibilidad */}
+                <div className="text-center">
+                  <h3
+                    className="font-display text-2xl md:text-3xl leading-none mb-1"
+                    style={{ color: m.accentColor }}
+                  >
+                    {m.nombre}
+                  </h3>
+                  <p
+                    className="text-[9px] uppercase tracking-[0.38em] mb-3"
+                    style={{ color: m.accentColor, opacity: 0.42 }}
+                  >
+                    {m.parte}
+                  </p>
+                  <p className="text-xs md:text-sm text-steel-300/65 leading-relaxed max-w-[165px]">
+                    {m.descripcion}
+                  </p>
+                </div>
+              </div>
             );
           })}
         </div>
@@ -76,56 +205,78 @@ export function MaterialsSection() {
 
 function SteelIcon() {
   return (
-    <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
       <defs>
-        <linearGradient id="steel-ic" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#d6dde6" />
-          <stop offset="100%" stopColor="#6a7888" />
+        <linearGradient id="si-g" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#f4f6f8" />
+          <stop offset="55%" stopColor="#97a4b4" />
+          <stop offset="100%" stopColor="#36404e" />
+        </linearGradient>
+        <linearGradient id="si-edge" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#e2e7ed" stopOpacity="0" />
+          <stop offset="50%" stopColor="#f4f6f8" />
+          <stop offset="100%" stopColor="#e2e7ed" stopOpacity="0" />
         </linearGradient>
       </defs>
-      <path
-        d="M3 13 L13 3 L20 4 L21 11 L11 21 Z"
-        fill="url(#steel-ic)"
-        stroke="#97a4b4"
-        strokeWidth="0.5"
-      />
-      <circle cx="16" cy="8" r="1.4" fill="#06080b" />
+      {/* blade silhouette */}
+      <path d="M3 14 L14 3 L21 4.5 L21.5 11 L10 21 Z" fill="url(#si-g)" stroke="#6a7888" strokeWidth="0.4" />
+      {/* edge highlight */}
+      <path d="M6 17 L15 8" stroke="url(#si-edge)" strokeWidth="0.9" strokeLinecap="round" />
+      {/* pin hole */}
+      <circle cx="17.5" cy="7.5" r="1.3" fill="#06080b" />
     </svg>
   );
 }
+
 function WoodIcon() {
   return (
-    <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
       <defs>
-        <linearGradient id="wood-ic" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#a87741" />
+        <linearGradient id="wi-g" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#c79962" />
           <stop offset="100%" stopColor="#3a2210" />
         </linearGradient>
+        <clipPath id="wi-clip">
+          <ellipse cx="12" cy="12" rx="9" ry="7" />
+        </clipPath>
       </defs>
-      <circle cx="12" cy="12" r="9" fill="url(#wood-ic)" />
-      <circle cx="12" cy="12" r="6" fill="none" stroke="#22140a" strokeWidth="0.6" />
-      <circle cx="12" cy="12" r="3.5" fill="none" stroke="#22140a" strokeWidth="0.6" />
-      <circle cx="12" cy="12" r="1.5" fill="#22140a" />
+      {/* handle oval */}
+      <ellipse cx="12" cy="12" rx="9" ry="7" fill="url(#wi-g)" />
+      {/* vertical grain lines clipped to oval */}
+      <g clipPath="url(#wi-clip)" opacity="0.55">
+        <line x1="6.5" y1="5" x2="6.5" y2="19" stroke="#22140a" strokeWidth="0.9" />
+        <line x1="9.5" y1="5" x2="9.5" y2="19" stroke="#22140a" strokeWidth="0.6" />
+        <line x1="12.5" y1="5" x2="12.5" y2="19" stroke="#22140a" strokeWidth="0.6" />
+        <line x1="15.5" y1="5" x2="15.5" y2="19" stroke="#22140a" strokeWidth="0.9" />
+      </g>
+      {/* subtle surface highlight */}
+      <ellipse cx="10" cy="10" rx="4" ry="2.5" fill="rgba(199,153,98,0.22)" />
     </svg>
   );
 }
+
 function CopperIcon() {
   return (
-    <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+    <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
       <defs>
-        <linearGradient id="copper-ic" x1="0" y1="0" x2="1" y2="1">
+        <linearGradient id="ci-g" x1="0" y1="0" x2="1" y2="1">
           <stop offset="0%" stopColor="#f3c285" />
-          <stop offset="50%" stopColor="#c97525" />
+          <stop offset="35%" stopColor="#e08e3a" />
+          <stop offset="70%" stopColor="#c97525" />
           <stop offset="100%" stopColor="#7f4516" />
         </linearGradient>
+        <linearGradient id="ci-hi" x1="0.2" y1="0" x2="0.8" y2="0.5">
+          <stop offset="0%" stopColor="#f3c285" stopOpacity="0.55" />
+          <stop offset="100%" stopColor="#f3c285" stopOpacity="0" />
+        </linearGradient>
       </defs>
-      <path
-        d="M12 2 L20 9 L17 21 L7 21 L4 9 Z"
-        fill="url(#copper-ic)"
-        stroke="#7f4516"
-        strokeWidth="0.5"
-      />
-      <path d="M9 11 L15 11 M9 14 L15 14 M9 17 L15 17" stroke="#321b08" strokeWidth="0.4" opacity="0.5" />
+      {/* virola / ring */}
+      <path d="M12 2.5 L19.5 8.5 L17.5 21.5 L6.5 21.5 L4.5 8.5 Z" fill="url(#ci-g)" stroke="#7f4516" strokeWidth="0.35" />
+      {/* top highlight triangle */}
+      <path d="M12 2.5 L19.5 8.5 L16 8.5 L12 4 L8 8.5 L4.5 8.5 Z" fill="url(#ci-hi)" />
+      {/* hammered lines */}
+      <path d="M8 12 L16 12 M8.5 15.2 L15.5 15.2 M9.2 18.2 L14.8 18.2"
+        stroke="#321b08" strokeWidth="0.5" opacity="0.6" strokeLinecap="round" />
     </svg>
   );
 }

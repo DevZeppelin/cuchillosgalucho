@@ -9,8 +9,7 @@ import { formatARS } from "@/app/lib/whatsapp";
 
 export function MayoristasGate({ products }: { products: Product[] }) {
   const { isMayorista, mayorista, setMayorista, clear } = useCart();
-  const [usuario, setUsuario] = useState("");
-  const [password, setPassword] = useState("");
+  const [celular, setCelular] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,23 +19,22 @@ export function MayoristasGate({ products }: { products: Product[] }) {
     setLoading(true);
     try {
       const fd = new FormData();
-      fd.set("usuario", usuario);
-      fd.set("password", password);
+      fd.set("celular", celular);
       const result = await loginMayoristaAction(fd);
       if (!result.ok || !result.session) {
-        setError(result.error ?? "Error al iniciar sesión");
+        setError(result.error ?? "Error al validar el acceso");
         return;
       }
       setMayorista(result.session);
-      setUsuario("");
-      setPassword("");
+      setCelular("");
     } catch {
-      setError("No pudimos validar el ingreso. Intentá de nuevo.");
+      setError("No pudimos validar el acceso. Intentá de nuevo.");
     } finally {
       setLoading(false);
     }
   };
 
+  /* ── Vista logueado ──────────────────────────────────────── */
   if (isMayorista && mayorista) {
     const ahorroTotal = products.reduce((sum, p) => {
       if (!p.precioMayorista) return sum;
@@ -56,12 +54,11 @@ export function MayoristasGate({ products }: { products: Product[] }) {
               <h2 className="font-display text-3xl md:text-4xl text-steel-50">
                 Bienvenido,{" "}
                 <em className="text-gradient-copper not-italic">
-                  {mayorista.nombreComercial}
+                  {mayorista.mail ?? mayorista.nombreComercial}
                 </em>
               </h2>
-              <p className="mt-3 text-steel-200">
-                Estás viendo el catálogo con precios mayoristas exclusivos. Tu
-                descuento promedio: <strong>{mayorista.descuento ?? 30}%</strong>.
+              <p className="mt-3 text-steel-300 text-sm">
+                Estás viendo el catálogo con precios mayoristas exclusivos.
               </p>
             </div>
             <div className="flex flex-col items-start md:items-end gap-3">
@@ -101,6 +98,7 @@ export function MayoristasGate({ products }: { products: Product[] }) {
     );
   }
 
+  /* ── Formulario de acceso ────────────────────────────────── */
   return (
     <div className="max-w-md mx-auto">
       <div className="relative rounded-2xl bg-steel-900/60 border border-steel-800 p-8 md:p-10 overflow-hidden">
@@ -116,35 +114,33 @@ export function MayoristasGate({ products }: { products: Product[] }) {
             <em className="text-gradient-copper not-italic">mayorista</em>
           </h2>
           <p className="mt-3 text-sm text-steel-300">
-            Usá las credenciales que te asignamos. ¿Aún no tenés cuenta?{" "}
+            Ingresá tu número de celular para acceder. ¿Aún no tenés acceso?{" "}
             <a
               href="https://wa.me/5491100000000?text=Hola%2C%20quiero%20pedir%20acceso%20mayorista"
               target="_blank"
               rel="noopener noreferrer"
               className="text-copper-400 hover:text-copper-300 underline"
             >
-              Pedila por WhatsApp
+              Pedilo por WhatsApp
             </a>
             .
           </p>
 
           <form onSubmit={onSubmit} className="mt-8 space-y-5">
-            <Field
-              label="Usuario"
-              type="text"
-              value={usuario}
-              onChange={setUsuario}
-              autoComplete="username"
-              placeholder="comercio_demo"
-            />
-            <Field
-              label="Contraseña"
-              type="password"
-              value={password}
-              onChange={setPassword}
-              autoComplete="current-password"
-              placeholder="••••••••"
-            />
+            <label className="block">
+              <span className="text-xs uppercase tracking-widest text-steel-300">
+                Celular
+              </span>
+              <input
+                type="tel"
+                inputMode="numeric"
+                value={celular}
+                autoComplete="tel"
+                placeholder="1112345678"
+                onChange={(e) => setCelular(e.target.value)}
+                className="mt-2 w-full bg-steel-950/70 border border-steel-700 focus:border-copper-500 focus:ring-2 focus:ring-copper-500/30 outline-none rounded-md px-4 py-3 text-steel-50 placeholder:text-steel-600 transition-all"
+              />
+            </label>
 
             {error && (
               <div className="rounded-md border border-red-500/40 bg-red-500/10 text-red-300 text-sm px-3 py-2 animate-fade-in">
@@ -155,51 +151,13 @@ export function MayoristasGate({ products }: { products: Product[] }) {
             <button
               type="submit"
               disabled={loading}
-              className="relative w-full bg-copper-500 hover:bg-copper-400 disabled:opacity-60 disabled:cursor-not-allowed text-steel-950 font-semibold uppercase tracking-widest text-sm py-3.5 rounded-md transition-all hover:scale-[1.01] active:scale-[0.99] overflow-hidden"
+              className="relative w-full bg-copper-500 hover:bg-copper-400 disabled:opacity-60 disabled:cursor-not-allowed text-steel-950 font-semibold uppercase tracking-widest text-sm py-3.5 rounded-md transition-all hover:scale-[1.01] active:scale-[0.99]"
             >
               {loading ? "Verificando…" : "Ingresar"}
             </button>
           </form>
-
-          <div className="mt-6 pt-6 border-t border-steel-800 text-xs text-steel-400 leading-relaxed">
-            <p className="mb-1 uppercase tracking-widest text-copper-400">Demo</p>
-            Usuario: <code className="text-steel-200">demo</code> · Clave:{" "}
-            <code className="text-steel-200">galucho2026</code>
-          </div>
         </div>
       </div>
     </div>
-  );
-}
-
-function Field({
-  label,
-  type,
-  value,
-  onChange,
-  autoComplete,
-  placeholder,
-}: {
-  label: string;
-  type: string;
-  value: string;
-  onChange: (v: string) => void;
-  autoComplete?: string;
-  placeholder?: string;
-}) {
-  return (
-    <label className="block">
-      <span className="text-xs uppercase tracking-widest text-steel-300">
-        {label}
-      </span>
-      <input
-        type={type}
-        value={value}
-        autoComplete={autoComplete}
-        placeholder={placeholder}
-        onChange={(e) => onChange(e.target.value)}
-        className="mt-2 w-full bg-steel-950/70 border border-steel-700 focus:border-copper-500 focus:ring-2 focus:ring-copper-500/30 outline-none rounded-md px-4 py-3 text-steel-50 placeholder:text-steel-500 transition-all"
-      />
-    </label>
   );
 }

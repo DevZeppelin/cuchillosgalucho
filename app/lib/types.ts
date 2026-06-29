@@ -1,12 +1,26 @@
-export type ProductCategory =
-  | "asador"
-  | "criollo"
-  | "tactico"
-  | "cocina"
-  | "campo"
-  | "coleccion";
+// Las categorías y materiales vienen del Google Sheet — usamos string para flexibilidad
+export type ProductCategory = string;
+export type ProductMaterial = string;
 
-export type ProductMaterial = "acero" | "madera" | "cobre" | "asta" | "carbono";
+export interface SizeOption {
+  id: string;
+  medida: string;   // label para mostrar: "10 CM", "26 CM", "HACHA 16", "Unidad"…
+  cm: number;
+  precio: number;
+  precioMayorista?: number;
+  stock?: number;
+}
+
+export interface GroupedProduct {
+  key: string;            // categoria:::nombre (clave única)
+  nombre: string;
+  categoria: string;
+  imagen: string;
+  materiales: string[];
+  destacado: boolean;
+  slug: string;
+  sizes: SizeOption[];
+}
 
 export interface Product {
   id: string;
@@ -36,4 +50,6 @@ export interface WholesaleSession {
   nombreComercial: string;
   descuento?: number;
   expira: number;
+  mail?: string;     // email del mayorista — se usa al enviar consulta por WhatsApp
+  celular?: string;  // celular con el que ingresó
 }

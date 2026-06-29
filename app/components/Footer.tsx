@@ -77,6 +77,21 @@ export function Footer() {
           <p>© {new Date().getFullYear()} Cuchillos Galucho — Todos los derechos reservados.</p>
           <p>Forjado en Argentina.</p>
         </div>
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 pb-5 flex justify-center">
+          <p className="text-[10px] text-steel-700 tracking-widest">
+            made with{" "}
+            <span className="text-steel-600" aria-label="amor">♥</span>{" "}
+            by{" "}
+            <a
+              href="https://devzeppelin.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-steel-400 transition-colors duration-300"
+            >
+              DevZeppelin
+            </a>
+          </p>
+        </div>
       </div>
     </footer>
   );
