@@ -19,19 +19,19 @@ export default async function Home() {
       <section id="catalogo" className="relative py-20 lg:py-28 scroll-mt-20">
         <div
           aria-hidden
-          className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-copper-500/30 to-transparent"
+          className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-copper-400/25 to-transparent"
         />
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <Reveal>
             <div className="text-center mb-12">
-              <p className="text-xs uppercase tracking-[0.4em] text-copper-400 mb-4">
+              <p className="text-xs uppercase tracking-[0.4em] text-copper-500 dark:text-copper-400 mb-4">
                 Catálogo completo
               </p>
-              <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-steel-50">
+              <h2 className="font-display text-4xl md:text-5xl lg:text-6xl text-stone-900 dark:text-steel-50">
                 Encontrá{" "}
                 <em className="text-gradient-copper not-italic">el tuyo</em>
               </h2>
-              <p className="mt-4 max-w-xl mx-auto text-steel-300">
+              <p className="mt-4 max-w-xl mx-auto text-stone-500 dark:text-steel-300">
                 Filtrá por uso. Cada pieza está disponible para coordinar
                 entrega vía WhatsApp.
               </p>

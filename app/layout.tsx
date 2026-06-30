@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/app/components/CartProvider";
+import { ThemeProvider } from "@/app/components/ThemeProvider";
 import { Header } from "@/app/components/Header";
 import { Footer } from "@/app/components/Footer";
 import { WhatsAppFab } from "@/app/components/WhatsAppFab";
@@ -40,15 +41,26 @@ export default function RootLayout({
     <html
       lang="es"
       className={`${geistSans.variable} ${cormorant.variable}`}
+      suppressHydrationWarning
     >
+      <head>
+        {/* Evita el destello (FOUC) al cargar el tema guardado */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){var t=localStorage.getItem('theme')||'light';if(t==='dark')document.documentElement.classList.add('dark');})();`,
+          }}
+        />
+      </head>
       <body className="min-h-screen flex flex-col">
-        <CartProvider>
-          <Header />
-          <main className="flex-1">{children}</main>
-          <Footer />
-          <CartDrawer />
-          <WhatsAppFab />
-        </CartProvider>
+        <ThemeProvider>
+          <CartProvider>
+            <Header />
+            <main className="flex-1">{children}</main>
+            <Footer />
+            <CartDrawer />
+            <WhatsAppFab />
+          </CartProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

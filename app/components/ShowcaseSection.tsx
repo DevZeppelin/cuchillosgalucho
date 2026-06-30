@@ -3,19 +3,16 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
-/* ── Fotos de detalle (se pasan desde el server component padre) ── */
 interface GenialPhoto {
   src: string;
   alt: string;
 }
 
-/* ── Materiales ─────────────────────────────────────────────────── */
 const MATERIALES = [
   {
     nombre: "Acero Inoxidable 420",
     parte: "La hoja",
-    descripcion:
-      "Inoxidable 420 de alta dureza. Resistente a la corrosión, filo duradero.",
+    descripcion: "Inoxidable 420 de alta dureza. Resistente a la corrosión, filo duradero.",
     circleBg: [
       "radial-gradient(circle at 28% 22%, rgba(255,255,255,0.15) 0%, transparent 50%)",
       "radial-gradient(circle at 36% 30%, #e2e7ed 0%, #c4cdd8 10%, #97a4b4 26%, #4a5666 50%, #262d38 70%, #181d25 100%)",
@@ -68,7 +65,6 @@ export function ShowcaseSection({ photos }: ShowcaseSectionProps) {
     return () => obs.disconnect();
   }, []);
 
-  /* Layout asimétrico: foto 0 ocupa más, las demás se distribuyen */
   const [main, ...rest] = photos;
 
   return (
@@ -95,23 +91,23 @@ export function ShowcaseSection({ photos }: ShowcaseSectionProps) {
       </div>
 
       <div className="max-w-6xl mx-auto px-6 lg:px-8 relative">
-        {/* ── Header ──────────────────────────────────────── */}
+        {/* Header */}
         <div className="text-center mb-10">
-          <p className="text-[10px] uppercase tracking-[0.45em] text-copper-400 mb-4">
+          <p className="text-[10px] uppercase tracking-[0.45em] text-copper-500 dark:text-copper-400 mb-4">
             Calidad y detalle
           </p>
-          <p className="text-xs uppercase tracking-[0.3em] text-steel-400 mt-2 mb-1">
+          <p className="text-xs uppercase tracking-[0.3em] text-stone-400 dark:text-steel-400 mt-2 mb-1">
             Acero Inoxidable 420
           </p>
-          <h2 className="font-display text-4xl md:text-5xl text-steel-50 leading-tight">
+          <h2 className="font-display text-4xl md:text-5xl text-stone-900 dark:text-steel-50 leading-tight">
             Hecho a mano.{" "}
             <em className="text-gradient-copper not-italic">Se nota.</em>
           </h2>
         </div>
-        {/* ── Fotos de detalle ────────────────────────────── */}
+
+        {/* Fotos de detalle */}
         {photos.length > 0 && (
           <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5 mb-16">
-            {/* Foto principal — portrait, ocupa 2 filas en desktop */}
             {main && (
               <div
                 className="row-span-2 md:row-span-2 relative rounded-xl overflow-hidden group"
@@ -124,17 +120,14 @@ export function ShowcaseSection({ photos }: ShowcaseSectionProps) {
                   sizes="(min-width: 768px) 33vw, 50vw"
                   className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-steel-950/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div
                   aria-hidden
                   className="pointer-events-none absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                  style={{
-                    boxShadow: "inset 0 0 0 1.5px rgba(117,99,69,0.30)",
-                  }}
+                  style={{ boxShadow: "inset 0 0 0 1.5px rgba(117,99,69,0.30)" }}
                 />
               </div>
             )}
-            {/* Fotos secundarias */}
             {rest.map((p, i) => (
               <div
                 key={i}
@@ -148,37 +141,29 @@ export function ShowcaseSection({ photos }: ShowcaseSectionProps) {
                   sizes="(min-width: 768px) 33vw, 50vw"
                   className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-steel-950/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div
                   aria-hidden
                   className="pointer-events-none absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                  style={{
-                    boxShadow: "inset 0 0 0 1.5px rgba(117,99,69,0.30)",
-                  }}
+                  style={{ boxShadow: "inset 0 0 0 1.5px rgba(117,99,69,0.30)" }}
                 />
               </div>
             ))}
           </div>
         )}
-        {/* ── Separador ───────────────────────────────────── */}
-        <div
-          aria-hidden
-          className="flex items-center justify-center gap-3 mb-14"
-        >
+
+        {/* Separador */}
+        <div aria-hidden className="flex items-center justify-center gap-3 mb-14">
           <div
             className="h-px w-16 opacity-20"
-            style={{
-              background: "linear-gradient(90deg, transparent, #756345)",
-            }}
+            style={{ background: "linear-gradient(90deg, transparent, #756345)" }}
           />
-          <div className="w-1 h-1 rounded-full bg-copper-600 opacity-40" />
+          <div className="w-1 h-1 rounded-full bg-copper-500 opacity-40" />
           <div className="w-1.5 h-1.5 rounded-full bg-copper-400 opacity-60" />
-          <div className="w-1 h-1 rounded-full bg-copper-600 opacity-40" />
+          <div className="w-1 h-1 rounded-full bg-copper-500 opacity-40" />
           <div
             className="h-px w-16 opacity-20"
-            style={{
-              background: "linear-gradient(270deg, transparent, #756345)",
-            }}
+            style={{ background: "linear-gradient(270deg, transparent, #756345)" }}
           />
         </div>
       </div>

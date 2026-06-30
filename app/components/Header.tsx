@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useCart } from "./CartProvider";
+import { ThemeToggle } from "./ThemeToggle";
 
 export function Header() {
   const { cantidad, toggle, isMayorista, mayorista, setMayorista } = useCart();
@@ -21,7 +22,6 @@ export function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // "Pop" visual cuando aumenta la cantidad
   useEffect(() => {
     if (cantidad > prevCantidad.current) {
       setBump(true);
@@ -47,7 +47,7 @@ export function Header() {
     <header
       className={`sticky top-0 z-30 transition-all duration-300 ${
         scrolled
-          ? "bg-steel-950/90 backdrop-blur-md border-b border-steel-800 shadow-[0_2px_30px_-12px_rgba(0,0,0,0.8)]"
+          ? "bg-white/90 dark:bg-steel-950/90 backdrop-blur-md border-b border-stone-200 dark:border-steel-800 shadow-sm dark:shadow-[0_2px_30px_-12px_rgba(0,0,0,0.8)]"
           : "bg-transparent border-b border-transparent"
       }`}
     >
@@ -58,7 +58,7 @@ export function Header() {
             alt="Cuchillos Galucho"
             width={160}
             height={64}
-            className={`invert h-10 w-auto transition-all duration-500 group-hover:scale-105 ${
+            className={`dark:invert h-10 w-auto transition-all duration-500 group-hover:scale-105 ${
               scrolled ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2 pointer-events-none"
             }`}
           />
@@ -69,7 +69,7 @@ export function Header() {
             <Link
               key={item.href}
               href={item.href}
-              className="relative text-sm uppercase tracking-widest text-steel-200 hover:text-copper-400 transition-colors group"
+              className="relative text-sm uppercase tracking-widest text-stone-600 dark:text-steel-200 hover:text-copper-500 dark:hover:text-copper-400 transition-colors group"
             >
               {item.label}
               <span className="absolute -bottom-1.5 left-0 right-0 h-px bg-copper-400 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-300" />
@@ -77,15 +77,15 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-2 lg:gap-4">
+        <div className="flex items-center gap-1 lg:gap-2">
           {isMayorista && mayorista && (
             <div className="hidden sm:flex flex-col items-end leading-tight">
-              <span className="text-[10px] uppercase tracking-widest text-copper-400">
+              <span className="text-[10px] uppercase tracking-widest text-copper-500 dark:text-copper-400">
                 Mayorista
               </span>
               <button
                 onClick={() => setMayorista(null)}
-                className="text-xs text-steel-200 hover:text-copper-400 transition-colors"
+                className="text-xs text-stone-600 dark:text-steel-200 hover:text-copper-500 dark:hover:text-copper-400 transition-colors"
                 title="Cerrar sesión"
               >
                 {mayorista.nombreComercial}
@@ -93,9 +93,11 @@ export function Header() {
             </div>
           )}
 
+          <ThemeToggle />
+
           <button
             onClick={toggle}
-            className={`relative p-2 text-steel-100 hover:text-copper-400 transition-transform ${
+            className={`relative p-2 text-stone-600 dark:text-steel-100 hover:text-copper-500 dark:hover:text-copper-400 transition-transform ${
               bump ? "animate-cart-bump" : ""
             }`}
             aria-label="Abrir carrito"
@@ -114,7 +116,7 @@ export function Header() {
             {cantidad > 0 && (
               <>
                 <span
-                  className={`absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-copper-500 text-steel-950 text-[10px] font-bold flex items-center justify-center transition-transform duration-300 ${
+                  className={`absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-copper-500 text-white text-[10px] font-bold flex items-center justify-center transition-transform duration-300 ${
                     bump ? "scale-125" : "scale-100"
                   } animate-glow-pulse`}
                 >
@@ -132,7 +134,7 @@ export function Header() {
 
           <button
             onClick={() => setMenuOpen((v) => !v)}
-            className="lg:hidden p-2 text-steel-100 hover:text-copper-400 transition-colors"
+            className="lg:hidden p-2 text-stone-600 dark:text-steel-100 hover:text-copper-500 dark:hover:text-copper-400 transition-colors"
             aria-label="Menú"
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -160,14 +162,14 @@ export function Header() {
       <div
         className={`lg:hidden overflow-hidden transition-[max-height] duration-300 ease-out ${
           menuOpen ? "max-h-96" : "max-h-0"
-        } bg-steel-950/95 backdrop-blur-md border-b border-steel-800`}
+        } bg-white/95 dark:bg-steel-950/95 backdrop-blur-md border-b border-stone-200 dark:border-steel-800`}
       >
         <nav className="px-6 py-4 flex flex-col gap-2">
           {nav.map((item) => (
             <Link
               key={item.href}
               href={item.href}
-              className="py-3 text-steel-100 hover:text-copper-400 transition-colors uppercase text-sm tracking-widest border-b border-steel-800 last:border-0"
+              className="py-3 text-stone-700 dark:text-steel-100 hover:text-copper-500 dark:hover:text-copper-400 transition-colors uppercase text-sm tracking-widest border-b border-stone-100 dark:border-steel-800 last:border-0"
             >
               {item.label}
             </Link>

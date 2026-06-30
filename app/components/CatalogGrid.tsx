@@ -41,17 +41,14 @@ export function CatalogGrid({ products, showPriceMayorista }: CatalogGridProps) 
   const [busqueda, setBusqueda] = useState("");
   const [fading, setFading]     = useState(false);
 
-  // Agrupar una sola vez cuando cambia el array de productos
   const grouped = useMemo(() => groupProducts(products), [products]);
 
-  // Categorías únicas en el orden que aparecen en el catálogo
   const categorias = useMemo(() => {
     const seen = new Set<string>();
     for (const g of grouped) if (g.categoria) seen.add(g.categoria);
     return Array.from(seen);
   }, [grouped]);
 
-  // Conteo por categoría sobre los grupos (no filas), respetando búsqueda
   const counts = useMemo(() => {
     const q = norm(busqueda);
     const base = q
@@ -101,14 +98,14 @@ export function CatalogGrid({ products, showPriceMayorista }: CatalogGridProps) 
 
   return (
     <div>
-      {/* ── Buscador ────────────────────────────────────────── */}
+      {/* Buscador */}
       <div className="relative mb-5 group">
         <div
           className="absolute inset-0 rounded-xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none"
-          style={{ boxShadow: "0 0 0 1px rgba(117,99,69,0.45), 0 0 20px rgba(117,99,69,0.08)" }}
+          style={{ boxShadow: "0 0 0 1px rgba(117,99,69,0.4), 0 0 20px rgba(117,99,69,0.06)" }}
         />
         <svg
-          className="absolute left-4 top-1/2 -translate-y-1/2 text-steel-500 group-focus-within:text-copper-400 transition-colors duration-200 pointer-events-none"
+          className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400 dark:text-steel-500 group-focus-within:text-copper-500 dark:group-focus-within:text-copper-400 transition-colors duration-200 pointer-events-none"
           width="16" height="16" viewBox="0 0 24 24" fill="none"
         >
           <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
@@ -119,13 +116,13 @@ export function CatalogGrid({ products, showPriceMayorista }: CatalogGridProps) 
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
           placeholder="Buscar pieza…"
-          className="w-full bg-steel-900/70 border border-steel-700 focus:border-copper-600 rounded-xl pl-11 pr-10 py-3.5 text-sm text-steel-100 placeholder:text-steel-600 focus:outline-none transition-colors duration-200"
+          className="w-full bg-white dark:bg-steel-900/70 border border-stone-200 dark:border-steel-700 focus:border-copper-400 dark:focus:border-copper-600 rounded-xl pl-11 pr-10 py-3.5 text-sm text-stone-800 dark:text-steel-100 placeholder:text-stone-400 dark:placeholder:text-steel-600 focus:outline-none transition-colors duration-200"
         />
         {busqueda && (
           <button
             onClick={() => setBusqueda("")}
             aria-label="Limpiar búsqueda"
-            className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center rounded-full text-steel-500 hover:text-steel-200 hover:bg-steel-700 transition-all"
+            className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center rounded-full text-stone-400 dark:text-steel-500 hover:text-stone-600 dark:hover:text-steel-200 hover:bg-stone-100 dark:hover:bg-steel-700 transition-all"
           >
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
               <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
@@ -134,7 +131,7 @@ export function CatalogGrid({ products, showPriceMayorista }: CatalogGridProps) 
         )}
       </div>
 
-      {/* ── Filtros ─────────────────────────────────────────── */}
+      {/* Filtros */}
       <div className="mb-8">
         <div className="overflow-x-auto pb-2 -mx-1 px-1" style={{ scrollbarWidth: "none" }}>
           <div className="flex gap-2 min-w-max flex-wrap md:flex-wrap">
@@ -169,10 +166,10 @@ export function CatalogGrid({ products, showPriceMayorista }: CatalogGridProps) 
         </div>
       </div>
 
-      {/* ── Meta ────────────────────────────────────────────── */}
+      {/* Meta */}
       <div className="flex items-center gap-4 mb-7">
-        <span className="text-[11px] uppercase tracking-widest text-steel-500 whitespace-nowrap shrink-0">
-          <span className="text-steel-300 font-medium">{filtered.length}</span>
+        <span className="text-[11px] uppercase tracking-widest text-stone-400 dark:text-steel-500 whitespace-nowrap shrink-0">
+          <span className="text-stone-700 dark:text-steel-300 font-medium">{filtered.length}</span>
           {" "}{filtered.length === 1 ? "modelo" : "modelos"}
           {busqueda && (
             <span className="text-copper-500 ml-1">· &ldquo;{busqueda}&rdquo;</span>
@@ -184,20 +181,20 @@ export function CatalogGrid({ products, showPriceMayorista }: CatalogGridProps) 
         <div
           aria-hidden
           className="flex-1 h-px"
-          style={{ background: "linear-gradient(90deg, rgba(117,99,69,0.18), transparent)" }}
+          style={{ background: "linear-gradient(90deg, rgba(117,99,69,0.14), transparent)" }}
         />
       </div>
 
-      {/* ── Grid ────────────────────────────────────────────── */}
+      {/* Grid */}
       {filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-28 gap-3 text-steel-600">
+        <div className="flex flex-col items-center justify-center py-28 gap-3 text-stone-300 dark:text-steel-600">
           <svg width="36" height="36" viewBox="0 0 24 24" fill="none">
             <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.4" />
             <path d="M9 9l6 6M15 9l-6 6" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
           </svg>
-          <p className="text-sm">
+          <p className="text-sm text-stone-500 dark:text-steel-400">
             {busqueda
-              ? <>No se encontró &ldquo;<span className="text-steel-300">{busqueda}</span>&rdquo;</>
+              ? <>No se encontró &ldquo;<span className="text-stone-700 dark:text-steel-300">{busqueda}</span>&rdquo;</>
               : "No hay piezas en esta categoría."}
           </p>
         </div>
@@ -222,8 +219,6 @@ export function CatalogGrid({ products, showPriceMayorista }: CatalogGridProps) 
   );
 }
 
-/* ── Pill reutilizable ──────────────────────────────────── */
-
 interface FilterPillProps {
   active: boolean;
   label: string;
@@ -244,18 +239,18 @@ function FilterPill({ active, label, count, icon, title, onClick }: FilterPillPr
         "text-[11px] font-semibold uppercase tracking-widest",
         "transition-all duration-300 whitespace-nowrap",
         active
-          ? "bg-copper-500 text-steel-950 shadow-[0_0_28px_-4px_rgba(117,99,69,0.50)]"
-          : "bg-steel-900/70 border border-steel-700 text-steel-300 hover:border-copper-600/50 hover:text-copper-300",
+          ? "bg-copper-500 text-white shadow-[0_0_28px_-4px_rgba(117,99,69,0.40)]"
+          : "bg-stone-100 dark:bg-steel-900/70 border border-stone-200 dark:border-steel-700 text-stone-600 dark:text-steel-300 hover:border-copper-400/50 dark:hover:border-copper-600/50 hover:text-copper-500 dark:hover:text-copper-300",
       ].join(" ")}
     >
-      <span className={active ? "text-steel-950" : "text-copper-500 group-hover:text-copper-300"}>
+      <span className={active ? "text-white" : "text-copper-400 dark:text-copper-500 group-hover:text-copper-500 dark:group-hover:text-copper-300"}>
         {icon}
       </span>
       {label}
       <span
         className={[
           "px-1.5 py-px text-[10px] rounded-md tabular-nums font-mono",
-          active ? "bg-steel-950/20 text-steel-900" : "bg-steel-800 text-steel-500",
+          active ? "bg-black/15 text-white" : "bg-stone-200 dark:bg-steel-800 text-stone-500 dark:text-steel-500",
         ].join(" ")}
       >
         {count}
@@ -263,8 +258,6 @@ function FilterPill({ active, label, count, icon, title, onClick }: FilterPillPr
     </button>
   );
 }
-
-/* ── Íconos ─────────────────────────────────────────────── */
 
 function IcGrid() {
   return (

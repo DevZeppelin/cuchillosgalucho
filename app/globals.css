@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Clase .dark en <html> activa el modo oscuro */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   /* Acero — fríos, oscuros, premium */
   --color-steel-50: #f4f6f8;
@@ -26,7 +29,7 @@
   --color-wood-800: #3a2210;
   --color-wood-900: #22140a;
 
-  /* Acento — oro apagado / acero bruñido */
+  /* Cobre — acento premium */
   --color-copper-50:  #f6f2ec;
   --color-copper-100: #e8e0d0;
   --color-copper-200: #cfc0a2;
@@ -41,30 +44,60 @@
   --font-sans: var(--font-geist-sans);
   --font-display: var(--font-cormorant);
   --font-mono: var(--font-geist-mono);
+}
 
-  --color-background: var(--color-steel-950);
-  --color-foreground: var(--color-steel-50);
+/* Variable de página: se usa en FamososCarousel y otros gradients de fade */
+:root {
+  --bg-page: #f5f0e8;
+}
+html.dark {
+  --bg-page: #13100d;
+
+  /* Remap steel palette: cold blue-gray → warm dark charcoal */
+  --color-steel-950: #13100d;
+  --color-steel-900: #1d1710;
+  --color-steel-800: #2a1e13;
+  --color-steel-700: #3a2b1a;
+  --color-steel-600: #504028;
+  --color-steel-500: #6e5a3c;
+  --color-steel-400: #8e7658;
+  --color-steel-300: #b09e80;
+  --color-steel-200: #cfc0a2;
+  --color-steel-100: #e8dece;
+  --color-steel-50:  #f4efe8;
 }
 
 @layer base {
   html {
     scroll-behavior: smooth;
-    background: var(--color-steel-950);
+    background: var(--bg-page);
+    color: #1a1108;
+  }
+  html.dark {
     color: var(--color-steel-50);
   }
+
   body {
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(175, 150, 115, 0.07), transparent 60%),
+      radial-gradient(900px 500px at -10% 30%, rgba(155, 130, 95, 0.05), transparent 60%),
+      var(--bg-page);
+    color: #1a1108;
+    min-height: 100vh;
+    font-family: var(--font-geist-sans), system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  html.dark body {
     background:
       radial-gradient(1200px 600px at 80% -10%, rgba(117, 99, 69, 0.05), transparent 60%),
       radial-gradient(900px 500px at -10% 30%, rgba(80, 65, 40, 0.04), transparent 60%),
       var(--color-steel-950);
     color: var(--color-steel-50);
-    min-height: 100vh;
-    font-family: var(--font-geist-sans), system-ui, sans-serif;
-    -webkit-font-smoothing: antialiased;
   }
+
   ::selection {
     background: var(--color-copper-500);
-    color: var(--color-steel-950);
+    color: #ffffff;
   }
 }
 
@@ -74,7 +107,6 @@
     letter-spacing: -0.01em;
   }
 
-  /* Filo metálico — un degradado tipo acero pulido */
   .steel-edge {
     background: linear-gradient(
       135deg,
@@ -87,21 +119,22 @@
     background-size: 200% 200%;
   }
 
+  /* Modo claro: cobre más oscuro para contraste sobre blanco */
   .text-gradient-copper {
-    background: linear-gradient(135deg, #cfc0a2 0%, #756345 50%, #b09e7e 100%);
+    background: linear-gradient(135deg, #a07848 0%, #5a4020 50%, #886040 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
   }
 
+  /* Modo claro: acero oscuro visible sobre blanco */
   .text-gradient-steel {
-    background: linear-gradient(135deg, #f4f6f8 0%, #97a4b4 50%, #f4f6f8 100%);
+    background: linear-gradient(135deg, #1f2630 0%, #36404e 50%, #262d38 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
   }
 
-  /* Textura de grano de madera */
   .wood-texture {
     background-color: #553318;
     background-image:
@@ -115,7 +148,6 @@
       radial-gradient(ellipse at 30% 40%, rgba(199, 153, 98, 0.18), transparent 70%);
   }
 
-  /* Líneas finas tipo grabado */
   .hairline-divider {
     height: 1px;
     background: linear-gradient(
@@ -129,14 +161,28 @@
   }
 }
 
+/* Modo oscuro: gradientes con tonos claros sobre fondo oscuro */
+html.dark .text-gradient-copper {
+  background: linear-gradient(135deg, #cfc0a2 0%, #756345 50%, #b09e7e 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+html.dark .text-gradient-steel {
+  background: linear-gradient(135deg, #f4f6f8 0%, #97a4b4 50%, #f4f6f8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
 /* Animaciones */
 @keyframes shine {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
 @keyframes float {
-  0%, 100% { transform: translateY(0) rotate(-2deg); }
-  50% { transform: translateY(-14px) rotate(2deg); }
+  0%, 100% { transform: translateY(0) rotate(-1.5deg); }
+  50% { transform: translateY(-12px) rotate(1.5deg); }
 }
 @keyframes reveal {
   from { opacity: 0; transform: translateY(28px); }
@@ -201,7 +247,6 @@
   animation: cart-ping 0.7s cubic-bezier(0, 0, 0.2, 1);
 }
 
-/* Estado inicial para reveal-on-scroll */
 .reveal-on-scroll {
   opacity: 0;
   transform: translateY(28px);
@@ -220,7 +265,6 @@
   100% { transform: translateX(320%) skewX(-22deg); opacity: 0; }
 }
 
-/* Material circles — scale-in reveal */
 @keyframes circle-in {
   from { opacity: 0; transform: scale(0.65) translateY(32px); }
   to   { opacity: 1; transform: scale(1) translateY(0); }
@@ -235,17 +279,29 @@
 
 .material-circle-card {
   box-shadow:
-    0 0 0 1px var(--card-border-base, rgba(255,255,255,0.1)),
-    0 10px 40px rgba(0,0,0,0.72);
+    0 0 0 1px var(--card-border-base, rgba(0,0,0,0.08)),
+    0 10px 40px rgba(0,0,0,0.18);
   transition: box-shadow 0.45s ease, transform 0.42s ease, filter 0.42s ease;
   cursor: default;
 }
 .material-circle-card:hover {
   box-shadow:
+    0 0 0 2.5px var(--card-border-hover, rgba(0,0,0,0.35)),
+    0 0 70px var(--card-glow, rgba(200,200,200,0.28)),
+    0 18px 52px rgba(0,0,0,0.28);
+  transform: translateY(-10px) scale(1.07);
+  filter: brightness(1.08) saturate(1.08);
+}
+html.dark .material-circle-card {
+  box-shadow:
+    0 0 0 1px var(--card-border-base, rgba(255,255,255,0.1)),
+    0 10px 40px rgba(0,0,0,0.72);
+}
+html.dark .material-circle-card:hover {
+  box-shadow:
     0 0 0 2.5px var(--card-border-hover, rgba(255,255,255,0.5)),
     0 0 70px var(--card-glow, rgba(200,200,200,0.28)),
     0 18px 52px rgba(0,0,0,0.88);
-  transform: translateY(-10px) scale(1.07);
   filter: brightness(1.16) saturate(1.12);
 }
 
@@ -270,7 +326,7 @@
   animation: material-shine 1.05s cubic-bezier(0.22, 1, 0.36, 1) var(--shine-delay, 0ms) both;
 }
 
-/* Famosos carousel — infinite horizontal scroll */
+/* Famosos carousel */
 @keyframes famosos-scroll {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
@@ -287,18 +343,27 @@
   animation-play-state: paused;
 }
 
-/* Scrollbar fino */
+/* Scrollbar */
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
 ::-webkit-scrollbar-track {
+  background: #ede8e0;
+}
+html.dark ::-webkit-scrollbar-track {
   background: var(--color-steel-900);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-steel-700);
+  background: #c4b0a0;
   border-radius: 8px;
 }
+html.dark ::-webkit-scrollbar-thumb {
+  background: var(--color-steel-700);
+}
 ::-webkit-scrollbar-thumb:hover {
+  background: rgba(117, 99, 69, 0.55);
+}
+html.dark ::-webkit-scrollbar-thumb:hover {
   background: var(--color-copper-600);
 }

@@ -9,22 +9,21 @@ export const metadata: Metadata = {
     "La historia de Cuchillos Galucho: forja artesanal argentina con más de 15 años de oficio y una comunidad de 40 mil seguidores.",
 };
 
-
 export default function NosotrosPage() {
   return (
     <>
       {/* Encabezado */}
       <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_-20%,rgba(117,99,69,0.10),transparent_55%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_-20%,rgba(117,99,69,0.08),transparent_55%)]" />
         <div className="relative max-w-4xl mx-auto px-6 lg:px-8 text-center">
-          <p className="text-xs uppercase tracking-[0.4em] text-copper-400 mb-4">
+          <p className="text-xs uppercase tracking-[0.4em] text-copper-500 dark:text-copper-400 mb-4">
             Cuchillos Galucho
           </p>
-          <h1 className="font-display text-5xl md:text-7xl lg:text-8xl text-steel-50 leading-[1] mb-6">
+          <h1 className="font-display text-5xl md:text-7xl lg:text-8xl text-stone-900 dark:text-steel-50 leading-[1] mb-6">
             <em className="text-gradient-copper not-italic">Forjadores</em>{" "}
             del oficio.
           </h1>
-          <p className="text-lg md:text-xl text-steel-300 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg md:text-xl text-stone-600 dark:text-steel-300 max-w-2xl mx-auto leading-relaxed">
             Una historia argentina hecha de fuego, paciencia y manos que saben. Cada
             cuchillo lleva el peso de más de quince años de oficio.
           </p>
@@ -36,15 +35,15 @@ export default function NosotrosPage() {
         <div className="max-w-6xl mx-auto px-6 lg:px-8 grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           <Reveal>
             <div>
-              <p className="text-xs uppercase tracking-[0.4em] text-copper-400 mb-4">
+              <p className="text-xs uppercase tracking-[0.4em] text-copper-500 dark:text-copper-400 mb-4">
                 La historia
               </p>
-              <h2 className="font-display text-4xl md:text-5xl text-steel-50 leading-tight mb-6">
+              <h2 className="font-display text-4xl md:text-5xl text-stone-900 dark:text-steel-50 leading-tight mb-6">
                 Empezó en un{" "}
                 <em className="text-gradient-copper not-italic">taller chico</em>,
                 con un yunque heredado.
               </h2>
-              <div className="space-y-4 text-steel-300 leading-relaxed">
+              <div className="space-y-4 text-stone-600 dark:text-steel-300 leading-relaxed">
                 <p>
                   Cuchillos Galucho nace de una obsesión simple: hacer la mejor pieza
                   posible, con los materiales que siempre se usaron, sin atajos
@@ -65,7 +64,7 @@ export default function NosotrosPage() {
           </Reveal>
 
           <Reveal delay={150}>
-            <figure className="relative aspect-[4/5] rounded-2xl overflow-hidden border border-copper-700/30 group">
+            <figure className="relative aspect-[4/5] rounded-2xl overflow-hidden border border-copper-600/25 dark:border-copper-700/30 group">
               <Image
                 src="/taller.jpg"
                 alt="El taller de Cuchillos Galucho"
@@ -73,12 +72,12 @@ export default function NosotrosPage() {
                 sizes="(min-width: 1024px) 480px, 100vw"
                 className="object-cover group-hover:scale-105 transition-transform duration-700"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-steel-950 via-steel-950/20 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
               <figcaption className="absolute inset-x-0 bottom-0 p-6 md:p-8">
                 <p className="text-xs uppercase tracking-[0.4em] text-copper-300 mb-2">
                   El taller
                 </p>
-                <p className="font-display text-2xl md:text-3xl text-steel-50 leading-tight">
+                <p className="font-display text-2xl md:text-3xl text-white leading-tight">
                   Donde nace cada pieza.
                 </p>
               </figcaption>
@@ -100,12 +99,12 @@ export default function NosotrosPage() {
               ].map(({ n, t }) => (
                 <div
                   key={t}
-                  className="text-center p-6 rounded-xl bg-steel-900/50 border border-steel-800"
+                  className="text-center p-6 rounded-xl bg-white dark:bg-steel-900/50 border border-stone-200 dark:border-steel-800 shadow-sm dark:shadow-none"
                 >
                   <p className="font-display text-5xl md:text-6xl text-gradient-copper">
                     {n}
                   </p>
-                  <p className="mt-2 text-xs uppercase tracking-widest text-steel-300">
+                  <p className="mt-2 text-xs uppercase tracking-widest text-stone-500 dark:text-steel-300">
                     {t}
                   </p>
                 </div>
@@ -128,15 +127,15 @@ export default function NosotrosPage() {
         descripcion="Nuestras piezas eligen su lugar. Compartimos algunas de las personas que nos hicieron el aguante."
       />
 
-      {/* Detrás de escena: stand + taller */}
+      {/* Detrás de escena */}
       <section className="relative py-20 lg:py-28">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <Reveal>
             <div className="text-center max-w-2xl mx-auto mb-12">
-              <p className="text-xs uppercase tracking-[0.4em] text-copper-400 mb-4">
+              <p className="text-xs uppercase tracking-[0.4em] text-copper-500 dark:text-copper-400 mb-4">
                 Detrás de escena
               </p>
-              <h2 className="font-display text-4xl md:text-5xl text-steel-50">
+              <h2 className="font-display text-4xl md:text-5xl text-stone-900 dark:text-steel-50">
                 Del taller{" "}
                 <em className="text-gradient-copper not-italic">a la calle</em>
               </h2>
@@ -168,17 +167,17 @@ export default function NosotrosPage() {
       <section className="relative py-20 lg:py-28">
         <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
           <Reveal>
-            <p className="text-xs uppercase tracking-[0.4em] text-copper-400 mb-6">
+            <p className="text-xs uppercase tracking-[0.4em] text-copper-500 dark:text-copper-400 mb-6">
               Nuestra forma
             </p>
-            <blockquote className="font-display text-3xl md:text-5xl text-steel-100 italic leading-tight">
-              “Un buen cuchillo es{" "}
+            <blockquote className="font-display text-3xl md:text-5xl text-stone-800 dark:text-steel-100 italic leading-tight">
+              "Un buen cuchillo es{" "}
               <span className="text-gradient-copper not-italic font-normal">
                 la herramienta
               </span>{" "}
-              y la herencia.”
+              y la herencia."
             </blockquote>
-            <p className="mt-6 text-steel-300">— Galucho</p>
+            <p className="mt-6 text-stone-500 dark:text-steel-300">— Galucho</p>
           </Reveal>
         </div>
       </section>
@@ -198,7 +197,7 @@ function BackstageCard({
   bajada: string;
 }) {
   return (
-    <figure className="group relative aspect-[16/10] rounded-2xl overflow-hidden border border-steel-800 hover:border-copper-600/50 transition-all">
+    <figure className="group relative aspect-[16/10] rounded-2xl overflow-hidden border border-stone-200 dark:border-steel-800 hover:border-copper-500/50 dark:hover:border-copper-600/50 transition-all">
       <Image
         src={src}
         alt={eyebrow}
@@ -206,15 +205,15 @@ function BackstageCard({
         sizes="(min-width: 768px) 50vw, 100vw"
         className="object-cover group-hover:scale-105 transition-transform duration-700"
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-steel-950 via-steel-950/40 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
       <figcaption className="absolute inset-x-0 bottom-0 p-6 md:p-8">
         <p className="text-xs uppercase tracking-[0.4em] text-copper-300 mb-2">
           {eyebrow}
         </p>
-        <p className="font-display text-2xl md:text-3xl text-steel-50 leading-tight">
+        <p className="font-display text-2xl md:text-3xl text-white leading-tight">
           {titulo}
         </p>
-        <p className="mt-2 text-sm text-steel-300 max-w-md">{bajada}</p>
+        <p className="mt-2 text-sm text-white/70 max-w-md">{bajada}</p>
       </figcaption>
     </figure>
   );

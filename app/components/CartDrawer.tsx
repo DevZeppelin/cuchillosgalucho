@@ -9,7 +9,6 @@ export function CartDrawer() {
   const { items, isOpen, close, setCantidad, remove, total, isMayorista, mayorista, clear } =
     useCart();
 
-  // Cerrar con ESC
   useEffect(() => {
     if (!isOpen) return;
     const handler = (e: KeyboardEvent) => {
@@ -19,7 +18,6 @@ export function CartDrawer() {
     return () => window.removeEventListener("keydown", handler);
   }, [isOpen, close]);
 
-  // Bloquear scroll del body cuando está abierto
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -43,7 +41,6 @@ export function CartDrawer() {
   };
 
   if (!isOpen && items.length === 0) {
-    // No render del drawer cuando está cerrado y vacío (evita peso innecesario)
     return null;
   }
 
@@ -52,7 +49,7 @@ export function CartDrawer() {
       {/* Overlay */}
       <div
         onClick={close}
-        className={`fixed inset-0 z-40 bg-steel-950/80 backdrop-blur-sm transition-opacity duration-300 ${
+        className={`fixed inset-0 z-40 bg-black/50 dark:bg-steel-950/80 backdrop-blur-sm transition-opacity duration-300 ${
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
         aria-hidden="true"
@@ -62,22 +59,22 @@ export function CartDrawer() {
       <aside
         role="dialog"
         aria-label="Carrito"
-        className={`fixed top-0 right-0 z-50 h-full w-full max-w-md bg-steel-900 border-l border-steel-700 shadow-2xl flex flex-col transition-transform duration-300 ${
+        className={`fixed top-0 right-0 z-50 h-full w-full max-w-md bg-white dark:bg-steel-900 border-l border-stone-200 dark:border-steel-700 shadow-2xl flex flex-col transition-transform duration-300 ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <header className="flex items-center justify-between px-6 py-5 border-b border-steel-700">
+        <header className="flex items-center justify-between px-6 py-5 border-b border-stone-200 dark:border-steel-700">
           <div>
-            <h2 className="font-display text-2xl text-steel-50">Tu pedido</h2>
+            <h2 className="font-display text-2xl text-stone-900 dark:text-steel-50">Tu pedido</h2>
             {isMayorista && (
-              <p className="text-xs uppercase tracking-widest text-copper-400 mt-0.5">
+              <p className="text-xs uppercase tracking-widest text-copper-500 dark:text-copper-400 mt-0.5">
                 Precios mayoristas
               </p>
             )}
           </div>
           <button
             onClick={close}
-            className="text-steel-300 hover:text-copper-400 transition-colors p-2 -m-2"
+            className="text-stone-400 dark:text-steel-300 hover:text-copper-500 dark:hover:text-copper-400 transition-colors p-2 -m-2"
             aria-label="Cerrar"
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -88,15 +85,15 @@ export function CartDrawer() {
 
         <div className="flex-1 overflow-y-auto px-6 py-4">
           {items.length === 0 ? (
-            <div className="h-full flex flex-col items-center justify-center text-center gap-3 text-steel-300">
-              <div className="w-20 h-20 rounded-full border border-steel-700 flex items-center justify-center text-copper-400">
+            <div className="h-full flex flex-col items-center justify-center text-center gap-3 text-stone-400 dark:text-steel-300">
+              <div className="w-20 h-20 rounded-full border border-stone-200 dark:border-steel-700 flex items-center justify-center text-copper-400">
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
                   <path d="M3 3h2l2.4 12.3a2 2 0 002 1.7h7.7a2 2 0 002-1.6L21 8H6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                   <circle cx="9" cy="21" r="1.2" fill="currentColor" />
                   <circle cx="17" cy="21" r="1.2" fill="currentColor" />
                 </svg>
               </div>
-              <p className="font-display text-xl text-steel-100">Tu carrito está vacío</p>
+              <p className="font-display text-xl text-stone-700 dark:text-steel-100">Tu carrito está vacío</p>
               <p className="text-sm">Explorá el catálogo y armá tu pedido.</p>
             </div>
           ) : (
@@ -104,9 +101,9 @@ export function CartDrawer() {
               {items.map((item) => (
                 <li
                   key={item.product.id}
-                  className="flex gap-4 p-3 rounded-lg bg-steel-800/60 border border-steel-700 hover:border-copper-600/50 transition-colors"
+                  className="flex gap-4 p-3 rounded-lg bg-stone-50 dark:bg-steel-800/60 border border-stone-200 dark:border-steel-700 hover:border-copper-400/50 dark:hover:border-copper-600/50 transition-colors"
                 >
-                  <div className="relative w-20 h-20 rounded-md overflow-hidden bg-steel-700 flex-shrink-0">
+                  <div className="relative w-20 h-20 rounded-md overflow-hidden bg-stone-200 dark:bg-steel-700 flex-shrink-0">
                     {item.product.imagen && (
                       <Image
                         src={item.product.imagen}
@@ -118,40 +115,40 @@ export function CartDrawer() {
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-medium text-steel-50 truncate">
+                    <h3 className="font-medium text-stone-900 dark:text-steel-50 truncate">
                       {item.product.nombre}
                     </h3>
-                    <p className="text-xs text-steel-300 mt-0.5">
+                    <p className="text-xs text-stone-500 dark:text-steel-300 mt-0.5">
                       Hoja {item.product.hojaCm} cm
                     </p>
                     <div className="flex items-center justify-between mt-2">
-                      <div className="flex items-center border border-steel-700 rounded">
+                      <div className="flex items-center border border-stone-300 dark:border-steel-700 rounded">
                         <button
                           onClick={() => setCantidad(item.product.id, item.cantidad - 1)}
-                          className="px-2 py-0.5 text-steel-300 hover:text-copper-400 transition-colors"
+                          className="px-2 py-0.5 text-stone-500 dark:text-steel-300 hover:text-copper-500 dark:hover:text-copper-400 transition-colors"
                           aria-label="Restar"
                         >
                           −
                         </button>
-                        <span className="px-3 text-sm tabular-nums text-steel-50">
+                        <span className="px-3 text-sm tabular-nums text-stone-800 dark:text-steel-50">
                           {item.cantidad}
                         </span>
                         <button
                           onClick={() => setCantidad(item.product.id, item.cantidad + 1)}
-                          className="px-2 py-0.5 text-steel-300 hover:text-copper-400 transition-colors"
+                          className="px-2 py-0.5 text-stone-500 dark:text-steel-300 hover:text-copper-500 dark:hover:text-copper-400 transition-colors"
                           aria-label="Sumar"
                         >
                           +
                         </button>
                       </div>
-                      <p className="text-sm font-semibold text-copper-300 tabular-nums">
+                      <p className="text-sm font-semibold text-copper-600 dark:text-copper-300 tabular-nums">
                         {formatARS(item.precioUnit * item.cantidad)}
                       </p>
                     </div>
                   </div>
                   <button
                     onClick={() => remove(item.product.id)}
-                    className="text-steel-400 hover:text-red-400 transition-colors p-1 -m-1 self-start"
+                    className="text-stone-400 dark:text-steel-400 hover:text-red-400 transition-colors p-1 -m-1 self-start"
                     aria-label="Quitar"
                   >
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -165,9 +162,9 @@ export function CartDrawer() {
         </div>
 
         {items.length > 0 && (
-          <footer className="border-t border-steel-700 px-6 py-5 space-y-4 bg-steel-900">
+          <footer className="border-t border-stone-200 dark:border-steel-700 px-6 py-5 space-y-4 bg-white dark:bg-steel-900">
             <div className="flex justify-between items-baseline">
-              <span className="text-steel-300 uppercase text-xs tracking-widest">
+              <span className="text-stone-500 dark:text-steel-300 uppercase text-xs tracking-widest">
                 Total
               </span>
               <span className="font-display text-3xl text-gradient-copper tabular-nums">
@@ -185,7 +182,7 @@ export function CartDrawer() {
             </button>
             <button
               onClick={clear}
-              className="w-full text-xs text-steel-400 hover:text-steel-200 transition-colors"
+              className="w-full text-xs text-stone-400 dark:text-steel-400 hover:text-stone-600 dark:hover:text-steel-200 transition-colors"
             >
               Vaciar carrito
             </button>
