@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 import { useCart } from "./CartProvider";
+import { ProductImageCarousel } from "./ProductImageCarousel";
 import { formatARS } from "@/app/lib/whatsapp";
 import type { GroupedProduct, SizeOption } from "@/app/lib/types";
 
@@ -15,9 +15,8 @@ interface ProductCardProps {
 export function ProductCard({ product, showPriceMayorista, badge }: ProductCardProps) {
   const { add, isMayorista } = useCart();
   const [selectedSize, setSelectedSize] = useState<SizeOption>(product.sizes[0]);
-  const [imgError, setImgError] = useState(false);
 
-  const useLogo = imgError || !product.imagen || product.imagen === "/logo.png";
+  const imagenes = product.imagenes && product.imagenes.length > 0 ? product.imagenes : [product.imagen];
   const useMayPrice = (showPriceMayorista || isMayorista) && selectedSize.precioMayorista;
   const precio = useMayPrice ? selectedSize.precioMayorista! : selectedSize.precio;
 
@@ -52,51 +51,7 @@ export function ProductCard({ product, showPriceMayorista, badge }: ProductCardP
         className="relative aspect-[4/3] shrink-0 overflow-hidden"
         style={{ transform: "translateZ(0)" }}
       >
-        {useLogo ? (
-          <div
-            className="absolute inset-0 flex items-center justify-center"
-            style={{
-              background:
-                "radial-gradient(ellipse at 50% 35%, #36404e 0%, #181d25 45%, #0e1218 75%, #06080b 100%)",
-            }}
-          >
-            <div
-              aria-hidden
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                background:
-                  "radial-gradient(ellipse at 30% 20%, rgba(117,99,69,0.06) 0%, transparent 55%)",
-              }}
-            />
-            <div className="relative w-3/5 aspect-square flex items-center justify-center">
-              <Image
-                src="/logo.png"
-                alt="Cuchillos Galucho"
-                fill
-                className="object-contain invert opacity-20 group-hover:opacity-35 transition-opacity duration-500"
-              />
-            </div>
-          </div>
-        ) : (
-          <Image
-            src={product.imagen}
-            alt={product.nombre}
-            fill
-            sizes="(min-width: 1024px) 320px, (min-width: 640px) 50vw, 100vw"
-            className="object-cover transition-transform duration-700 group-hover:scale-110"
-            onError={() => setImgError(true)}
-          />
-        )}
-
-        {!useLogo && (
-          <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/55 via-black/20 to-transparent" />
-        )}
-
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0"
-          style={{ boxShadow: "inset 0 0 0 1px rgba(0,0,0,0.06)" }}
-        />
+        <ProductImageCarousel images={imagenes} alt={product.nombre} />
 
         {(badge || product.destacado) && (
           <span className="absolute top-3 left-3 px-2.5 py-1 text-[10px] uppercase tracking-widest font-semibold bg-copper-500 text-white rounded-full shadow z-10">

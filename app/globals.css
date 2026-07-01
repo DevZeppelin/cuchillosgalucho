@@ -326,6 +326,17 @@ html.dark .material-circle-card:hover {
   animation: material-shine 1.05s cubic-bezier(0.22, 1, 0.36, 1) var(--shine-delay, 0ms) both;
 }
 
+/* Carrusel de imágenes de producto — barrita de progreso tipo stories */
+@keyframes carousel-fill {
+  from { width: 0%; }
+  to   { width: 100%; }
+}
+.animate-carousel-fill {
+  animation-name: carousel-fill;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
 /* Famosos carousel */
 @keyframes famosos-scroll {
   from { transform: translateX(0); }

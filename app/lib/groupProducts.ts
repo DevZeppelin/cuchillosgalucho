@@ -14,6 +14,7 @@ export function groupProducts(products: Product[]): GroupedProduct[] {
         nombre: p.nombre,
         categoria: p.categoria,
         imagen: p.imagen,
+        imagenes: p.imagenes,
         materiales: p.materiales,
         destacado: p.destacado ?? false,
         slug,
@@ -30,6 +31,7 @@ export function groupProducts(products: Product[]): GroupedProduct[] {
       p.imagen !== "/logo.png"
     ) {
       g.imagen = p.imagen;
+      g.imagenes = p.imagenes;
     }
 
     // Si cualquier variante está destacada, el grupo queda destacado

@@ -16,6 +16,7 @@ export interface GroupedProduct {
   nombre: string;
   categoria: string;
   imagen: string;
+  imagenes?: string[];    // todas las imágenes del carrusel (imagen === imagenes[0])
   materiales: string[];
   destacado: boolean;
   slug: string;
@@ -34,6 +35,7 @@ export interface Product {
   hojaCm: number;
   materiales: ProductMaterial[];
   imagen: string;
+  imagenes?: string[];    // todas las imágenes del carrusel (imagen === imagenes[0])
   imagenSecundaria?: string;
   destacado?: boolean;
   stock?: number;

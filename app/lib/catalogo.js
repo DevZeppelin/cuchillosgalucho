@@ -6,6 +6,9 @@
  *   destacado   — "si" / vacío
  *   imagen      — nombre de archivo (ej: "cabo-ciervo-16.jpg") → se sirve desde /productos/
  *                 También acepta URLs completas (https://...) y links de Google Drive.
+ *                 Sin extensión y con guion (ej: "1-2", "11-17") → rango de fotos individuales
+ *                 para carrusel (1.png, 2.png, ...). Con extensión (ej: "105-110.png") se
+ *                 respeta el nombre tal cual, aunque tenga guion.
  *
  * Si SHEETS_WEBAPP_URL no está definida o la petición falla,
  * devuelve los productos de demostración (MOCK_PRODUCTS).
@@ -86,25 +89,67 @@ function toMateriales(v) {
   return String(v).split(/[,;/\s]+/).map((m) => m.trim().toLowerCase()).filter(Boolean);
 }
 
+const IMG_EXT_RE = /\.(png|jpe?g|webp|avif|gif)$/i;
+const RANGE_RE = /^(\d+)\s*-\s*(\d+)$/;
+const BARE_NUM_RE = /^\d+$/;
+// Google Sheets en formato DD-MM autoconvierte celdas tipo "9-10" en una fecha real
+// (ej: "2026-10-09T07:00:00.000Z" = 9 de octubre). Detectamos ese ISO y reconstruimos
+// el rango original a partir del día/mes en UTC (evita corromper el valor de vuelta).
+const ISO_DATE_RE = /^(\d{4})-(\d{2})-(\d{2})T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/;
+
+function expandRange(a, b) {
+  const [lo, hi] = a <= b ? [a, b] : [b, a];
+  const imgs = [];
+  for (let n = lo; n <= hi; n++) imgs.push(`/productos/${n}.png`);
+  return imgs;
+}
+
 /**
- * Resuelve el campo imagen:
- *   "01.jpg"                     → /productos/01.jpg
- *   "https://cdn.com/img.jpg"    → https://cdn.com/img.jpg
- *   "https://drive.google.com/file/d/ID/view" → uc?export=view&id=ID
- *   "" / undefined               → imagen placeholder
+ * Resuelve el campo imagen a un array de imágenes (carrusel):
+ *   "01.jpg"                     → ["/productos/01.jpg"]                    (respeta el nombre)
+ *   "105-110.png"                → ["/productos/105-110.png"]               (con extensión → respeta el nombre, aunque tenga guion)
+ *   "1-2"                        → ["/productos/1.png", "/productos/2.png"] (sin extensión → rango → una imagen por número)
+ *   "11-17"                      → 11.png … 17.png (7 imágenes)
+ *   "2026-10-09T07:00:00.000Z"   → ["/productos/9.png", "/productos/10.png"] (Sheets convirtió "9-10" en fecha → se reconstruye)
+ *   "5"                          → ["/productos/5.png"]                     (número suelto sin extensión)
+ *   "https://cdn.com/img.jpg"    → ["https://cdn.com/img.jpg"]
+ *   "https://drive.google.com/file/d/ID/view" → ["uc?export=view&id=ID"]
+ *   "" / undefined               → [imagen placeholder]
  */
-function resolveImagen(raw) {
+function resolveImagenes(raw) {
   const s = String(raw ?? "").trim();
-  if (!s) return PLACEHOLDER_IMG;
+  if (!s) return [PLACEHOLDER_IMG];
+
   // URL completa o ruta absoluta — usar tal cual
   if (/^https?:\/\//i.test(s) || s.startsWith("/")) {
     // Convertir link de compartir de Drive a link directo
     const drive = s.match(/\/d\/([^/?#]+)/);
-    if (drive) return `https://drive.google.com/uc?export=view&id=${drive[1]}`;
-    return s;
+    if (drive) return [`https://drive.google.com/uc?export=view&id=${drive[1]}`];
+    return [s];
   }
-  // Nombre de archivo → carpeta /productos/
-  return `/productos/${s}`;
+
+  // Ya trae extensión de imagen → respeta el nombre tal cual (aunque tenga guion, ej: "105-110.png")
+  if (IMG_EXT_RE.test(s)) return [`/productos/${s}`];
+
+  // Fecha ISO (Sheets autoconvirtió el rango) → recuperar día/mes como rango
+  const isoDate = s.match(ISO_DATE_RE);
+  if (isoDate) {
+    const day = parseInt(isoDate[3], 10);
+    const month = parseInt(isoDate[2], 10);
+    return expandRange(day, month);
+  }
+
+  // Rango sin extensión (ej: "1-2", "11-17") → carrusel con una imagen por número
+  const range = s.match(RANGE_RE);
+  if (range) {
+    return expandRange(parseInt(range[1], 10), parseInt(range[2], 10));
+  }
+
+  // Número suelto sin extensión → agrega ".png"
+  if (BARE_NUM_RE.test(s)) return [`/productos/${s}.png`];
+
+  // Nombre de archivo sin extensión reconocida → carpeta /productos/ tal cual
+  return [`/productos/${s}`];
 }
 
 function makeSlug(nombre, id) {
@@ -144,7 +189,8 @@ function rowToProduct(rawRow, index) {
     "archivo_imagen",
     "img",
   );
-  const imagen = resolveImagen(rawImg);
+  const imagenes = resolveImagenes(rawImg);
+  const imagen = imagenes[0];
 
   const precioMayoristaRaw = toNumber(
     pick(row, "preciomayorista", "precio_mayorista", "mayorista", "precio_may") ?? 0
@@ -170,6 +216,7 @@ function rowToProduct(rawRow, index) {
     hojaCm: cm,
     materiales: toMateriales(pick(row, "materiales", "material", "materials")),
     imagen,
+    imagenes,
     imagenSecundaria: String(pick(row, "imagen_secundaria", "imagen2") ?? "") || undefined,
     destacado: toBoolean(pick(row, "destacado", "featured", "principal")),
     stock: (() => {
