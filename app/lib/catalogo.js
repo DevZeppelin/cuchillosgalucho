@@ -1,14 +1,18 @@
 /**
  * Adaptador Google Sheets → Product[]
  *
- * Columnas esperadas en la hoja "WEB":
- *   id, nombre, categoria, cm, medida, precioMayorista,
- *   destacado   — "si" / vacío
- *   imagen      — nombre de archivo (ej: "cabo-ciervo-16.jpg") → se sirve desde /productos/
- *                 También acepta URLs completas (https://...) y links de Google Drive.
- *                 Sin extensión y con guion (ej: "1-2", "11-17") → rango de fotos individuales
- *                 para carrusel (1.png, 2.png, ...). Con extensión (ej: "105-110.png") se
- *                 respeta el nombre tal cual, aunque tenga guion.
+ * Columnas de la hoja "INVENTARIO" (las sirve el Apps Script, ver apps-script/Code.gs):
+ *   ID          — identificador de la fila
+ *   ORDEN       — orden de aparición en la web (menor primero)
+ *   IMAGEN      — rango de fotos, ej: "7-9" → 0007.jpeg, 0008.jpeg, 0009.jpeg
+ *                 en /productos/. También acepta número suelto ("5" → 0005.jpeg),
+ *                 nombre de archivo con extensión, URLs y links de Google Drive.
+ *   SHEET       — categoría del producto (ej: "FINOX")
+ *   MODELO      — medida/variante (ej: "30 cm") → una fila por medida
+ *   DESCRIPCION — nombre del producto (las filas con igual DESCRIPCION+SHEET
+ *                 se agrupan en una tarjeta con selector de medidas)
+ *   UNIDADES    — stock
+ *   TOTAL       — precio mayorista; el precio público = TOTAL × 1.9
  *
  * Si SHEETS_WEBAPP_URL no está definida o la petición falla,
  * devuelve los productos de demostración (MOCK_PRODUCTS).
@@ -96,22 +100,28 @@ const BARE_NUM_RE = /^\d+$/;
 // (ej: "2026-10-09T07:00:00.000Z" = 9 de octubre). Detectamos ese ISO y reconstruimos
 // el rango original a partir del día/mes en UTC (evita corromper el valor de vuelta).
 const ISO_DATE_RE = /^(\d{4})-(\d{2})-(\d{2})T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/;
+// Misma autoconversión pero con getDisplayValues(): "9-10" se muestra "9/10/2026" o "9/10"
+const SLASH_DATE_RE = /^(\d{1,2})\/(\d{1,2})(?:\/\d{2,4})?$/;
+
+// "7" → "/productos/0007.jpeg" — las fotos están numeradas con 4 dígitos
+function numToImg(n) {
+  return `/productos/${String(n).padStart(4, "0")}.jpeg`;
+}
 
 function expandRange(a, b) {
   const [lo, hi] = a <= b ? [a, b] : [b, a];
   const imgs = [];
-  for (let n = lo; n <= hi; n++) imgs.push(`/productos/${n}.png`);
+  for (let n = lo; n <= hi; n++) imgs.push(numToImg(n));
   return imgs;
 }
 
 /**
  * Resuelve el campo imagen a un array de imágenes (carrusel):
- *   "01.jpg"                     → ["/productos/01.jpg"]                    (respeta el nombre)
- *   "105-110.png"                → ["/productos/105-110.png"]               (con extensión → respeta el nombre, aunque tenga guion)
- *   "1-2"                        → ["/productos/1.png", "/productos/2.png"] (sin extensión → rango → una imagen por número)
- *   "11-17"                      → 11.png … 17.png (7 imágenes)
- *   "2026-10-09T07:00:00.000Z"   → ["/productos/9.png", "/productos/10.png"] (Sheets convirtió "9-10" en fecha → se reconstruye)
- *   "5"                          → ["/productos/5.png"]                     (número suelto sin extensión)
+ *   "7-9"                        → ["/productos/0007.jpeg", "0008.jpeg", "0009.jpeg"] (rango → una imagen por número)
+ *   "5"                          → ["/productos/0005.jpeg"]                 (número suelto sin extensión)
+ *   "9/10/2026" o "9/10"         → ["/productos/0009.jpeg", "0010.jpeg"]    (Sheets convirtió "9-10" en fecha → se reconstruye)
+ *   "2026-10-09T07:00:00.000Z"   → ídem anterior (fecha serializada como ISO)
+ *   "01.jpg"                     → ["/productos/01.jpg"]                    (con extensión → respeta el nombre tal cual)
  *   "https://cdn.com/img.jpg"    → ["https://cdn.com/img.jpg"]
  *   "https://drive.google.com/file/d/ID/view" → ["uc?export=view&id=ID"]
  *   "" / undefined               → [imagen placeholder]
@@ -139,14 +149,20 @@ function resolveImagenes(raw) {
     return expandRange(day, month);
   }
 
-  // Rango sin extensión (ej: "1-2", "11-17") → carrusel con una imagen por número
+  // Fecha mostrada "9/10" o "9/10/2026" (ídem, con getDisplayValues) → día/mes como rango
+  const slashDate = s.match(SLASH_DATE_RE);
+  if (slashDate) {
+    return expandRange(parseInt(slashDate[1], 10), parseInt(slashDate[2], 10));
+  }
+
+  // Rango sin extensión (ej: "1-3", "7-9") → carrusel con una imagen por número
   const range = s.match(RANGE_RE);
   if (range) {
     return expandRange(parseInt(range[1], 10), parseInt(range[2], 10));
   }
 
-  // Número suelto sin extensión → agrega ".png"
-  if (BARE_NUM_RE.test(s)) return [`/productos/${s}.png`];
+  // Número suelto sin extensión → foto numerada
+  if (BARE_NUM_RE.test(s)) return [numToImg(parseInt(s, 10))];
 
   // Nombre de archivo sin extensión reconocida → carpeta /productos/ tal cual
   return [`/productos/${s}`];
@@ -170,12 +186,14 @@ function rowToProduct(rawRow, index) {
   }
 
   const id = String(pick(row, "id", "codigo", "sku") ?? index + 1);
-  const rawNombre = String(pick(row, "nombre", "name", "producto", "titulo") ?? "Sin nombre").trim();
+  // DESCRIPCION es el nombre del producto en la hoja INVENTARIO
+  const rawNombre = String(pick(row, "nombre", "descripcion", "name", "producto", "titulo") ?? "Sin nombre").trim();
   const nombre = toTitleCase(rawNombre);
   const slug = makeSlug(rawNombre, id);
 
-  const rawCat = String(pick(row, "categoria", "category", "tipo", "linea") ?? "").trim();
-  const categoria = rawCat || "Sin categoría";
+  // SHEET es la categoría en la hoja INVENTARIO (con TIPOHOJA de respaldo)
+  const rawCat = String(pick(row, "categoria", "sheet", "tipohoja", "category", "tipo", "linea") ?? "").trim();
+  const categoria = toTitleCase(rawCat) || "Sin categoría";
 
   const rawImg = pick(
     row,
@@ -192,25 +210,32 @@ function rowToProduct(rawRow, index) {
   const imagenes = resolveImagenes(rawImg);
   const imagen = imagenes[0];
 
+  // TOTAL de la hoja INVENTARIO = precio mayorista
   const precioMayoristaRaw = toNumber(
-    pick(row, "preciomayorista", "precio_mayorista", "mayorista", "precio_may") ?? 0
+    pick(row, "total", "preciomayorista", "precio_mayorista", "mayorista", "precio_may") ?? 0
   );
   // Precio público = mayorista + 90%. Si el sheet ya tiene columna "precio", la usa.
-  const precioPublicoRaw = toNumber(pick(row, "precio", "price", "valor") ?? 0);
+  const precioPublicoRaw = toNumber(pick(row, "precio", "price") ?? 0);
   const precio = precioPublicoRaw > 0
     ? precioPublicoRaw
     : Math.round(precioMayoristaRaw * 1.9);
 
-  const cm = toNumber(pick(row, "cm", "hoja_cm", "hoja", "largo", "medida_cm") ?? 0);
-  const medida = String(pick(row, "medida", "talle", "tamano") ?? "").trim();
+  // MODELO trae la medida ("30 cm", "10 cm"). Ojo: la columna HOJA ahora es un costo, no cm.
+  const medida = String(pick(row, "modelo", "medida", "talle", "tamano") ?? "").trim();
+  const cmDeMedida = medida.match(/(\d+(?:[.,]\d+)?)\s*cm/i);
+  const cm = cmDeMedida
+    ? toNumber(cmDeMedida[1])
+    : toNumber(pick(row, "cm", "hoja_cm", "largo", "medida_cm") ?? 0);
 
   return {
     id,
     slug,
     nombre,
     categoria,
+    orden: toNumber(pick(row, "orden") ?? 0),
     descripcionCorta: medida || (cm > 0 ? `${cm} cm` : ""),
-    descripcionLarga: String(pick(row, "descripcion_larga", "descripcion", "description") ?? "").trim(),
+    // "descripcion" NO va acá: en la hoja INVENTARIO es el nombre del producto
+    descripcionLarga: String(pick(row, "descripcion_larga") ?? "").trim(),
     precio,
     precioMayorista: precioMayoristaRaw > 0 ? precioMayoristaRaw : undefined,
     hojaCm: cm,
@@ -220,7 +245,7 @@ function rowToProduct(rawRow, index) {
     imagenSecundaria: String(pick(row, "imagen_secundaria", "imagen2") ?? "") || undefined,
     destacado: toBoolean(pick(row, "destacado", "featured", "principal")),
     stock: (() => {
-      const s = pick(row, "stock", "existencia", "cantidad");
+      const s = pick(row, "unidades", "stock", "existencia", "cantidad");
       return s != null && s !== "" ? toNumber(s) : undefined;
     })(),
   };
@@ -252,8 +277,12 @@ export async function getCatalogo() {
         // Descartar filas con errores de Excel (#REF!, precios imposibles)
         if (p.nombre.includes("#REF!") || p.nombre.includes("#N/A")) return false;
         if (p.precio > MAX_PRECIO) return false;
+        // Filas sin nombre ni precio (separadores, subtotales, etc.)
+        if (p.nombre === "Sin Nombre" && p.precio <= 0) return false;
         return true;
-      });
+      })
+      // Respetar la columna ORDEN de la hoja (sin orden → al final)
+      .sort((a, b) => (a.orden || Infinity) - (b.orden || Infinity));
   } catch (err) {
     console.error("[catalogo] Error al leer Google Sheet:", err?.message ?? err);
     return MOCK_PRODUCTS;

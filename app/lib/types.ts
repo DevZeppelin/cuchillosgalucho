@@ -28,6 +28,8 @@ export interface Product {
   slug: string;
   nombre: string;
   categoria: ProductCategory;
+  orden?: number;         // columna ORDEN del sheet — posición en la grilla
+
   descripcionCorta: string;
   descripcionLarga: string;
   precio: number;

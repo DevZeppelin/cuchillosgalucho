@@ -37,11 +37,15 @@ function norm(s: string) {
 }
 
 export function CatalogGrid({ products, showPriceMayorista }: CatalogGridProps) {
-  const [filtro, setFiltro]     = useState<string>("destacados");
+  // Arrancar en "Destacados" solo si el sheet marca alguno; si no, mostrar todo
+  const [filtro, setFiltro]     = useState<string>(() =>
+    groupProducts(products).some((g) => g.destacado) ? "destacados" : "todos",
+  );
   const [busqueda, setBusqueda] = useState("");
   const [fading, setFading]     = useState(false);
 
   const grouped = useMemo(() => groupProducts(products), [products]);
+  const hayDestacados = useMemo(() => grouped.some((g) => g.destacado), [grouped]);
 
   const categorias = useMemo(() => {
     const seen = new Set<string>();
@@ -143,14 +147,16 @@ export function CatalogGrid({ products, showPriceMayorista }: CatalogGridProps) 
               title="Todos"
               onClick={() => cambiarFiltro("todos")}
             />
-            <FilterPill
-              active={filtro === "destacados"}
-              label="Destacados"
-              count={counts.destacados ?? 0}
-              icon={<IcEstrella />}
-              title="Destacados"
-              onClick={() => cambiarFiltro("destacados")}
-            />
+            {hayDestacados && (
+              <FilterPill
+                active={filtro === "destacados"}
+                label="Destacados"
+                count={counts.destacados ?? 0}
+                icon={<IcEstrella />}
+                title="Destacados"
+                onClick={() => cambiarFiltro("destacados")}
+              />
+            )}
             {categorias.map((cat) => (
               <FilterPill
                 key={cat}
