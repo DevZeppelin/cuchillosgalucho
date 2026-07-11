@@ -103,14 +103,14 @@ export function CartDrawer() {
                   key={item.product.id}
                   className="flex gap-4 p-3 rounded-lg bg-stone-50 dark:bg-steel-800/60 border border-stone-200 dark:border-steel-700 hover:border-copper-400/50 dark:hover:border-copper-600/50 transition-colors"
                 >
-                  <div className="relative w-20 h-20 rounded-md overflow-hidden bg-stone-200 dark:bg-steel-700 flex-shrink-0">
+                  <div className="relative w-20 h-20 rounded-md overflow-hidden bg-white border border-stone-200 dark:border-steel-700 flex-shrink-0">
                     {item.product.imagen && (
                       <Image
                         src={item.product.imagen}
                         alt={item.product.nombre}
                         fill
                         sizes="80px"
-                        className="object-cover"
+                        className="object-contain p-1.5 drop-shadow-[0_4px_6px_rgba(0,0,0,0.2)]"
                       />
                     )}
                   </div>

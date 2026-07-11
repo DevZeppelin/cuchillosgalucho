@@ -4,8 +4,8 @@
  * Columnas de la hoja "INVENTARIO" (las sirve el Apps Script, ver apps-script/Code.gs):
  *   ID          — identificador de la fila
  *   ORDEN       — orden de aparición en la web (menor primero)
- *   IMAGEN      — rango de fotos, ej: "7-9" → 0007.jpeg, 0008.jpeg, 0009.jpeg
- *                 en /productos/. También acepta número suelto ("5" → 0005.jpeg),
+ *   IMAGEN      — rango de fotos, ej: "7-9" → 7.png, 8.png, 9.png
+ *                 en /productos/. También acepta número suelto ("5" → 5.png),
  *                 nombre de archivo con extensión, URLs y links de Google Drive.
  *   SHEET       — categoría del producto (ej: "FINOX")
  *   MODELO      — medida/variante (ej: "30 cm") → una fila por medida
@@ -103,9 +103,9 @@ const ISO_DATE_RE = /^(\d{4})-(\d{2})-(\d{2})T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/;
 // Misma autoconversión pero con getDisplayValues(): "9-10" se muestra "9/10/2026" o "9/10"
 const SLASH_DATE_RE = /^(\d{1,2})\/(\d{1,2})(?:\/\d{2,4})?$/;
 
-// "7" → "/productos/0007.jpeg" — las fotos están numeradas con 4 dígitos
+// "7" → "/productos/7.png" — las fotos están numeradas sin ceros a la izquierda
 function numToImg(n) {
-  return `/productos/${String(n).padStart(4, "0")}.jpeg`;
+  return `/productos/${n}.png`;
 }
 
 function expandRange(a, b) {
@@ -117,9 +117,9 @@ function expandRange(a, b) {
 
 /**
  * Resuelve el campo imagen a un array de imágenes (carrusel):
- *   "7-9"                        → ["/productos/0007.jpeg", "0008.jpeg", "0009.jpeg"] (rango → una imagen por número)
- *   "5"                          → ["/productos/0005.jpeg"]                 (número suelto sin extensión)
- *   "9/10/2026" o "9/10"         → ["/productos/0009.jpeg", "0010.jpeg"]    (Sheets convirtió "9-10" en fecha → se reconstruye)
+ *   "7-9"                        → ["/productos/7.png", "8.png", "9.png"]   (rango → una imagen por número)
+ *   "5"                          → ["/productos/5.png"]                     (número suelto sin extensión)
+ *   "9/10/2026" o "9/10"         → ["/productos/9.png", "10.png"]           (Sheets convirtió "9-10" en fecha → se reconstruye)
  *   "2026-10-09T07:00:00.000Z"   → ídem anterior (fecha serializada como ISO)
  *   "01.jpg"                     → ["/productos/01.jpg"]                    (con extensión → respeta el nombre tal cual)
  *   "https://cdn.com/img.jpg"    → ["https://cdn.com/img.jpg"]

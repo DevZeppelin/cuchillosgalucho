@@ -111,19 +111,17 @@ export function ProductImageCarousel({ images, alt }: ProductImageCarouselProps)
           </div>
         </div>
       ) : (
-        <Image
-          key={current}
-          src={current}
-          alt={alt}
-          fill
-          sizes="(min-width: 1024px) 320px, (min-width: 640px) 50vw, 100vw"
-          className="object-cover transition-transform duration-700 group-hover:scale-110"
-          onError={() => setFailed((prev) => new Set(prev).add(index))}
-        />
-      )}
-
-      {!useLogo && (
-        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/55 via-black/20 to-transparent" />
+        <div className="absolute inset-0 bg-white">
+          <Image
+            key={current}
+            src={current}
+            alt={alt}
+            fill
+            sizes="(min-width: 1024px) 320px, (min-width: 640px) 50vw, 100vw"
+            className="object-contain p-4 transition-transform duration-700 group-hover:scale-105 drop-shadow-[0_10px_14px_rgba(0,0,0,0.22)]"
+            onError={() => setFailed((prev) => new Set(prev).add(index))}
+          />
+        </div>
       )}
 
       <div
@@ -137,11 +135,11 @@ export function ProductImageCarousel({ images, alt }: ProductImageCarouselProps)
           {/* Barrita de progreso tipo stories — se llena mientras el mouse está encima */}
           <div className="absolute top-0 inset-x-0 flex gap-0.5 p-1 z-20">
             {slides.map((_, i) => (
-              <div key={i} className="h-[3px] flex-1 rounded-full bg-white/30 overflow-hidden">
+              <div key={i} className="h-[3px] flex-1 rounded-full bg-black/15 overflow-hidden">
                 <div
                   key={i === index ? `${i}-active` : `${i}-idle`}
                   className={[
-                    "h-full bg-white rounded-full",
+                    "h-full bg-copper-500 rounded-full",
                     i < index ? "w-full" : i > index ? "w-0" : "w-0 animate-carousel-fill",
                   ].join(" ")}
                   style={
@@ -191,7 +189,7 @@ export function ProductImageCarousel({ images, alt }: ProductImageCarouselProps)
           aria-label={alt}
         >
           <div
-            className="relative w-full max-w-2xl max-h-[85vh] aspect-[4/3] bg-stone-950 rounded-2xl overflow-hidden shadow-2xl animate-[circle-in_0.28s_cubic-bezier(0.16,1,0.3,1)]"
+            className="relative w-full max-w-2xl max-h-[85vh] aspect-[4/3] bg-white rounded-2xl overflow-hidden shadow-2xl animate-[circle-in_0.28s_cubic-bezier(0.16,1,0.3,1)]"
             onClick={(e) => e.stopPropagation()}
           >
             <Image
@@ -200,7 +198,7 @@ export function ProductImageCarousel({ images, alt }: ProductImageCarouselProps)
               alt={alt}
               fill
               sizes="(min-width: 768px) 640px, 92vw"
-              className="object-contain"
+              className="object-contain p-6 drop-shadow-[0_12px_18px_rgba(0,0,0,0.25)]"
             />
 
             <button
@@ -243,7 +241,7 @@ export function ProductImageCarousel({ images, alt }: ProductImageCarouselProps)
                       key={i}
                       className={[
                         "h-1.5 rounded-full transition-all",
-                        i === index ? "w-6 bg-white" : "w-1.5 bg-white/40",
+                        i === index ? "w-6 bg-copper-500" : "w-1.5 bg-black/25",
                       ].join(" ")}
                     />
                   ))}
