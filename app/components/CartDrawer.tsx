@@ -1,13 +1,19 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useCart } from "./CartProvider";
-import { buildOrderMessage, buildWhatsAppUrl, formatARS } from "@/app/lib/whatsapp";
+import { RemitoModal } from "./RemitoModal";
+import { buildOrderMessage, buildWhatsAppUrl, esRaul, formatARS } from "@/app/lib/whatsapp";
 
 export function CartDrawer() {
   const { items, isOpen, close, setCantidad, remove, total, isMayorista, mayorista, clear } =
     useCart();
+  const [remitoOpen, setRemitoOpen] = useState(false);
+
+  // Raúl (dueño) logueado como mayorista → en vez de enviarse el pedido a sí
+  // mismo, genera un remito para su cliente y registra la venta en VENTAS
+  const raul = isMayorista && esRaul(mayorista?.celular ?? mayorista?.usuario);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -121,6 +127,9 @@ export function CartDrawer() {
                     <p className="text-xs text-stone-500 dark:text-steel-300 mt-0.5">
                       Hoja {item.product.hojaCm} cm
                     </p>
+                    <p className="text-xs text-stone-500 dark:text-steel-300 mt-0.5 tabular-nums">
+                      {formatARS(item.precioUnit)} c/u
+                    </p>
                     <div className="flex items-center justify-between mt-2">
                       <div className="flex items-center border border-stone-300 dark:border-steel-700 rounded">
                         <button
@@ -171,15 +180,27 @@ export function CartDrawer() {
                 {formatARS(total)}
               </span>
             </div>
-            <button
-              onClick={handleEnviarPedido}
-              className="w-full bg-[#25D366] hover:bg-[#1ebe57] text-white font-medium py-3.5 rounded-lg flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-[0.99]"
-            >
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M17.6 6.32A8 8 0 005.93 17.5l-1.18 4.31 4.41-1.16a8 8 0 008.43-13.32zm-5.6 12.3a6.65 6.65 0 01-3.38-.92l-.24-.14-2.62.69.7-2.56-.16-.26a6.65 6.65 0 1112.34-3.55 6.65 6.65 0 01-6.64 6.74zm3.64-4.97c-.2-.1-1.17-.58-1.35-.64-.18-.07-.31-.1-.45.1-.13.2-.51.64-.63.78-.11.13-.23.15-.43.05-.2-.1-.84-.31-1.6-.99a6 6 0 01-1.1-1.37c-.12-.2-.01-.31.09-.41.1-.1.2-.23.3-.35.1-.12.13-.2.2-.34.07-.13.03-.25-.02-.35-.05-.1-.45-1.08-.62-1.48-.16-.39-.33-.34-.45-.34h-.39c-.13 0-.34.05-.52.25s-.69.67-.69 1.65c0 .98.71 1.92.81 2.05.1.13 1.39 2.12 3.37 2.97.47.2.84.32 1.13.41.47.15.9.13 1.24.08.38-.06 1.17-.48 1.34-.94.17-.46.17-.86.12-.94-.05-.08-.18-.13-.38-.23z" />
-              </svg>
-              Enviar pedido por WhatsApp
-            </button>
+            {raul ? (
+              <button
+                onClick={() => setRemitoOpen(true)}
+                className="w-full bg-copper-500 hover:bg-copper-400 text-steel-950 font-semibold py-3.5 rounded-lg flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-[0.99]"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M9 12h6m-6 4h6M9 8h2m8-3v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2h10a2 2 0 012 2z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                Generar remito y registrar venta
+              </button>
+            ) : (
+              <button
+                onClick={handleEnviarPedido}
+                className="w-full bg-[#25D366] hover:bg-[#1ebe57] text-white font-medium py-3.5 rounded-lg flex items-center justify-center gap-2 transition-all hover:scale-[1.01] active:scale-[0.99]"
+              >
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M17.6 6.32A8 8 0 005.93 17.5l-1.18 4.31 4.41-1.16a8 8 0 008.43-13.32zm-5.6 12.3a6.65 6.65 0 01-3.38-.92l-.24-.14-2.62.69.7-2.56-.16-.26a6.65 6.65 0 1112.34-3.55 6.65 6.65 0 01-6.64 6.74zm3.64-4.97c-.2-.1-1.17-.58-1.35-.64-.18-.07-.31-.1-.45.1-.13.2-.51.64-.63.78-.11.13-.23.15-.43.05-.2-.1-.84-.31-1.6-.99a6 6 0 01-1.1-1.37c-.12-.2-.01-.31.09-.41.1-.1.2-.23.3-.35.1-.12.13-.2.2-.34.07-.13.03-.25-.02-.35-.05-.1-.45-1.08-.62-1.48-.16-.39-.33-.34-.45-.34h-.39c-.13 0-.34.05-.52.25s-.69.67-.69 1.65c0 .98.71 1.92.81 2.05.1.13 1.39 2.12 3.37 2.97.47.2.84.32 1.13.41.47.15.9.13 1.24.08.38-.06 1.17-.48 1.34-.94.17-.46.17-.86.12-.94-.05-.08-.18-.13-.38-.23z" />
+                </svg>
+                Enviar pedido por WhatsApp
+              </button>
+            )}
             <button
               onClick={clear}
               className="w-full text-xs text-stone-400 dark:text-steel-400 hover:text-stone-600 dark:hover:text-steel-200 transition-colors"
@@ -189,6 +210,8 @@ export function CartDrawer() {
           </footer>
         )}
       </aside>
+
+      {raul && <RemitoModal open={remitoOpen} onClose={() => setRemitoOpen(false)} />}
     </>
   );
 }

@@ -5,9 +5,13 @@
  * Sirve el contenido del Google Sheet como JSON para la web (Next.js).
  *
  * Endpoints:
- *   GET <url>                      → hoja INVENTARIO (solo columnas públicas)
- *   GET <url>?sheet=ACCESOS_WEB    → hoja ACCESOS_WEB (clientes mayoristas)
- *   GET <url>?sheet=<NOMBRE>       → cualquier otra hoja por nombre
+ *   GET  <url>                      → hoja INVENTARIO (solo columnas públicas)
+ *   GET  <url>?sheet=ACCESOS_WEB    → hoja ACCESOS_WEB (clientes mayoristas)
+ *   GET  <url>?config=precios       → { markupPct } leído de COSTOS!M5
+ *   POST <url>  body {accion:"venta", …}  → registra una venta en la hoja VENTAS
+ *
+ *   Solo se sirven por ?sheet= las hojas de SHEETS_PUBLICAS — el resto
+ *   (COSTOS, VENTAS, etc.) contienen datos internos y devuelven error.
  *
  * IMPORTANTE — columnas públicas:
  *   La URL del Web App es pública, así que para la hoja INVENTARIO solo se
@@ -36,6 +40,30 @@
  */
 
 var SHEET_CATALOGO = "INVENTARIO";
+var SHEET_VENTAS = "VENTAS";
+
+// Únicas hojas que el web app sirve por ?sheet= (la URL es pública)
+var SHEETS_PUBLICAS = ["INVENTARIO", "ACCESOS_WEB"];
+
+// % de ganancia minorista: hoja COSTOS, celda M5 (ej: 90 → precio = TOTAL × 1.9)
+var SHEET_COSTOS = "COSTOS";
+var CELDA_MARKUP = "M5";
+var MARKUP_DEFAULT = 90;
+
+var VENTAS_HEADERS = [
+  "FECHA",
+  "REMITO",
+  "VENDEDOR",
+  "CLIENTE",
+  "CIUDAD",
+  "CELULAR",
+  "PRODUCTO",
+  "MEDIDA",
+  "CANTIDAD",
+  "PRECIO UNIT",
+  "SUBTOTAL",
+  "TOTAL REMITO",
+];
 
 var COLUMNAS_PUBLICAS = [
   "ID",
@@ -50,8 +78,16 @@ var COLUMNAS_PUBLICAS = [
 ];
 
 function doGet(e) {
+  if (e && e.parameter && e.parameter.config === "precios") {
+    return configPrecios_();
+  }
+
   var nombre =
     (e && e.parameter && e.parameter.sheet) ? String(e.parameter.sheet) : SHEET_CATALOGO;
+
+  if (SHEETS_PUBLICAS.indexOf(nombre.toUpperCase()) === -1) {
+    return json_({ error: "Hoja no disponible: " + nombre });
+  }
 
   var hoja = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(nombre);
   if (!hoja) {
@@ -90,6 +126,68 @@ function doGet(e) {
   }
 
   return json_(rows);
+}
+
+// Config pública de precios: solo expone el % de markup, nunca la hoja COSTOS
+function configPrecios_() {
+  var hoja = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_COSTOS);
+  var markup = hoja ? Number(hoja.getRange(CELDA_MARKUP).getValue()) : NaN;
+  if (isNaN(markup) || markup <= 0) markup = MARKUP_DEFAULT;
+  return json_({ markupPct: markup });
+}
+
+/**
+ * Registra una venta (remito de Raúl) en la hoja VENTAS — una fila por ítem.
+ * Si la hoja no existe, la crea con los encabezados de VENTAS_HEADERS.
+ *
+ * Body esperado (JSON):
+ *   { accion: "venta", remito, vendedor, cliente, ciudad, celular, total,
+ *     items: [{ producto, medida, cantidad, precioUnit, subtotal }] }
+ */
+function doPost(e) {
+  var data;
+  try {
+    data = JSON.parse(e.postData.contents);
+  } catch (err) {
+    return json_({ ok: false, error: "JSON inválido" });
+  }
+
+  if (!data || data.accion !== "venta" || !Array.isArray(data.items) || data.items.length === 0) {
+    return json_({ ok: false, error: "Payload inválido" });
+  }
+
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var hoja = ss.getSheetByName(SHEET_VENTAS);
+  if (!hoja) {
+    hoja = ss.insertSheet(SHEET_VENTAS);
+    hoja.appendRow(VENTAS_HEADERS);
+    hoja.getRange(1, 1, 1, VENTAS_HEADERS.length).setFontWeight("bold");
+    hoja.setFrozenRows(1);
+  }
+
+  var fecha = new Date();
+  var filas = data.items.map(function (it) {
+    return [
+      fecha,
+      String(data.remito || ""),
+      String(data.vendedor || ""),
+      String(data.cliente || ""),
+      String(data.ciudad || ""),
+      String(data.celular || ""),
+      String(it.producto || ""),
+      String(it.medida || ""),
+      Number(it.cantidad) || 0,
+      Number(it.precioUnit) || 0,
+      Number(it.subtotal) || 0,
+      Number(data.total) || 0,
+    ];
+  });
+
+  hoja
+    .getRange(hoja.getLastRow() + 1, 1, filas.length, VENTAS_HEADERS.length)
+    .setValues(filas);
+
+  return json_({ ok: true, filas: filas.length });
 }
 
 function json_(data) {

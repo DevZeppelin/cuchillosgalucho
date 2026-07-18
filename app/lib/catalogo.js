@@ -12,7 +12,9 @@
  *   DESCRIPCION — nombre del producto (las filas con igual DESCRIPCION+SHEET
  *                 se agrupan en una tarjeta con selector de medidas)
  *   UNIDADES    — stock
- *   TOTAL       — precio mayorista; el precio público = TOTAL × 1.9
+ *   TOTAL       — precio mayorista; el precio público = TOTAL × (1 + markup/100).
+ *                 El markup vive en la hoja COSTOS, celda M5 (ej: 90 = +90%)
+ *                 y lo sirve el Apps Script vía ?config=precios.
  *
  * Si SHEETS_WEBAPP_URL no está definida o la petición falla,
  * devuelve los productos de demostración (MOCK_PRODUCTS).
@@ -24,6 +26,9 @@ const PLACEHOLDER_IMG = "/logo.png";
 
 // Precio máximo plausible — celdas con valores > a este son errores de Excel
 const MAX_PRECIO = 5_000_000;
+
+// % de ganancia minorista si no se puede leer COSTOS!M5 del sheet
+const MARKUP_PCT_DEFAULT = 90;
 
 // Normaliza clave de columna: "precioMayorista" → "preciomayorista"
 function nk(k) {
@@ -178,7 +183,7 @@ function makeSlug(nombre, id) {
   return `${base || "producto"}-${id}`;
 }
 
-function rowToProduct(rawRow, index) {
+function rowToProduct(rawRow, index, markupPct = MARKUP_PCT_DEFAULT) {
   // Normalizar todas las claves
   const row = {};
   for (const [k, v] of Object.entries(rawRow)) {
@@ -214,11 +219,11 @@ function rowToProduct(rawRow, index) {
   const precioMayoristaRaw = toNumber(
     pick(row, "total", "preciomayorista", "precio_mayorista", "mayorista", "precio_may") ?? 0
   );
-  // Precio público = mayorista + 90%. Si el sheet ya tiene columna "precio", la usa.
+  // Precio público = mayorista + markup% (COSTOS!M5). Si el sheet ya tiene columna "precio", la usa.
   const precioPublicoRaw = toNumber(pick(row, "precio", "price") ?? 0);
   const precio = precioPublicoRaw > 0
     ? precioPublicoRaw
-    : Math.round(precioMayoristaRaw * 1.9);
+    : Math.round(precioMayoristaRaw * (1 + markupPct / 100));
 
   // MODELO trae la medida ("30 cm", "10 cm"). Ojo: la columna HOJA ahora es un costo, no cm.
   const medida = String(pick(row, "modelo", "medida", "talle", "tamano") ?? "").trim();
@@ -251,12 +256,30 @@ function rowToProduct(rawRow, index) {
   };
 }
 
+/**
+ * Lee el % de ganancia minorista (hoja COSTOS, celda M5) vía ?config=precios.
+ * Si falla o el valor no es válido, usa MARKUP_PCT_DEFAULT.
+ */
+async function getMarkupPct(url) {
+  try {
+    const res = await fetch(`${url}?config=precios`, { next: { revalidate: 3600 } });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const raw = await res.json();
+    const pct = toNumber(raw?.markupPct);
+    if (pct > 0) return pct;
+  } catch (err) {
+    console.error("[catalogo] No se pudo leer el markup (COSTOS!M5):", err?.message ?? err);
+  }
+  return MARKUP_PCT_DEFAULT;
+}
+
 /** @returns {Promise<import("./types").Product[]>} */
 export async function getCatalogo() {
   const url = process.env.SHEETS_WEBAPP_URL;
   if (!url) return MOCK_PRODUCTS;
 
   try {
+    const markupPromise = getMarkupPct(url);
     const res = await fetch(url, { next: { revalidate: 3600 } });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
@@ -270,9 +293,11 @@ export async function getCatalogo() {
       return MOCK_PRODUCTS;
     }
 
+    const markupPct = await markupPromise;
+
     return rows
       .filter((r) => r && typeof r === "object")
-      .map(rowToProduct)
+      .map((r, i) => rowToProduct(r, i, markupPct))
       .filter((p) => {
         // Descartar filas con errores de Excel (#REF!, precios imposibles)
         if (p.nombre.includes("#REF!") || p.nombre.includes("#N/A")) return false;

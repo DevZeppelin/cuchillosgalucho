@@ -5,7 +5,11 @@ import { useCart } from "@/app/components/CartProvider";
 import { CatalogGrid } from "@/app/components/CatalogGrid";
 import { loginMayoristaAction } from "./actions";
 import type { Product } from "@/app/lib/types";
-import { formatARS } from "@/app/lib/whatsapp";
+import {
+  buildWhatsAppUrl,
+  formatARS,
+  MENSAJE_SOLICITAR_ACCESO,
+} from "@/app/lib/whatsapp";
 
 export function MayoristasGate({ products }: { products: Product[] }) {
   const { isMayorista, mayorista, setMayorista, clear } = useCart();
@@ -114,16 +118,8 @@ export function MayoristasGate({ products }: { products: Product[] }) {
             <em className="text-gradient-copper not-italic">mayorista</em>
           </h2>
           <p className="mt-3 text-sm text-steel-300">
-            Ingresá tu número de celular para acceder. ¿Aún no tenés acceso?{" "}
-            <a
-              href="https://wa.me/5492241672338?text=Hola%2C%20quiero%20pedir%20acceso%20mayorista"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-copper-400 hover:text-copper-300 underline"
-            >
-              Pedilo por WhatsApp
-            </a>
-            .
+            Ingresá tu número de celular para acceder al catálogo con precios
+            mayoristas.
           </p>
 
           <form onSubmit={onSubmit} className="mt-8 space-y-5">
@@ -156,6 +152,27 @@ export function MayoristasGate({ products }: { products: Product[] }) {
               {loading ? "Verificando…" : "Ingresar"}
             </button>
           </form>
+
+          {/* Solicitar acceso */}
+          <div className="mt-8 pt-6 border-t border-steel-800 text-center">
+            <p className="text-sm text-steel-300 mb-4">
+              ¿Todavía no tenés acceso mayorista?
+            </p>
+            <a
+              href={buildWhatsAppUrl(MENSAJE_SOLICITAR_ACCESO)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="animate-wa-glow flex w-full items-center justify-center gap-2.5 rounded-md bg-[#25D366] hover:bg-[#1ebe57] text-white font-semibold uppercase tracking-widest text-sm py-3.5 transition-all hover:scale-[1.02] active:scale-[0.98]"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M17.6 6.32A8 8 0 005.93 17.5l-1.18 4.31 4.41-1.16a8 8 0 008.43-13.32zm-5.6 12.3a6.65 6.65 0 01-3.38-.92l-.24-.14-2.62.69.7-2.56-.16-.26a6.65 6.65 0 1112.34-3.55 6.65 6.65 0 01-6.64 6.74zm3.64-4.97c-.2-.1-1.17-.58-1.35-.64-.18-.07-.31-.1-.45.1-.13.2-.51.64-.63.78-.11.13-.23.15-.43.05-.2-.1-.84-.31-1.6-.99a6 6 0 01-1.1-1.37c-.12-.2-.01-.31.09-.41.1-.1.2-.23.3-.35.1-.12.13-.2.2-.34.07-.13.03-.25-.02-.35-.05-.1-.45-1.08-.62-1.48-.16-.39-.33-.34-.45-.34h-.39c-.13 0-.34.05-.52.25s-.69.67-.69 1.65c0 .98.71 1.92.81 2.05.1.13 1.39 2.12 3.37 2.97.47.2.84.32 1.13.41.47.15.9.13 1.24.08.38-.06 1.17-.48 1.34-.94.17-.46.17-.86.12-.94-.05-.08-.18-.13-.38-.23z" />
+              </svg>
+              Solicitar acceso
+            </a>
+            <p className="mt-3 text-xs text-steel-400">
+              Se abre WhatsApp con el pedido de acceso ya escrito.
+            </p>
+          </div>
         </div>
       </div>
     </div>
