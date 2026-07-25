@@ -6,6 +6,7 @@
  *   ORDEN       — orden de aparición en la web (menor primero)
  *   IMAGEN      — rango de fotos, ej: "7-9" → 7.png, 8.png, 9.png
  *                 en /productos/. También acepta número suelto ("5" → 5.png),
+ *                 foto + foto de caja compartida ("107-CAJA6" o "107-109-CAJA12"),
  *                 nombre de archivo con extensión, URLs y links de Google Drive.
  *   SHEET       — categoría del producto (ej: "FINOX")
  *   MODELO      — medida/variante (ej: "30 cm") → una fila por medida
@@ -101,6 +102,9 @@ function toMateriales(v) {
 const IMG_EXT_RE = /\.(png|jpe?g|webp|avif|gif)$/i;
 const RANGE_RE = /^(\d+)\s*-\s*(\d+)$/;
 const BARE_NUM_RE = /^\d+$/;
+// Ítem con foto de caja compartida (la misma caja se usa en varios productos):
+// "107-CAJA6" → 107.png + caja6.png  |  "107-109-CAJA12" → 107,108,109.png + caja12.png
+const CAJA_RE = /^(\d+)(?:-(\d+))?-caja(\d+)$/i;
 // Google Sheets en formato DD-MM autoconvierte celdas tipo "9-10" en una fecha real
 // (ej: "2026-10-09T07:00:00.000Z" = 9 de octubre). Detectamos ese ISO y reconstruimos
 // el rango original a partir del día/mes en UTC (evita corromper el valor de vuelta).
@@ -126,6 +130,8 @@ function expandRange(a, b) {
  *   "5"                          → ["/productos/5.png"]                     (número suelto sin extensión)
  *   "9/10/2026" o "9/10"         → ["/productos/9.png", "10.png"]           (Sheets convirtió "9-10" en fecha → se reconstruye)
  *   "2026-10-09T07:00:00.000Z"   → ídem anterior (fecha serializada como ISO)
+ *   "107-CAJA6"                  → ["/productos/107.png", "caja6.png"]      (foto + foto de caja compartida entre varios ítems)
+ *   "107-109-CAJA12"             → ["/productos/107.png", "108.png", "109.png", "caja12.png"]  (rango + foto de caja)
  *   "01.jpg"                     → ["/productos/01.jpg"]                    (con extensión → respeta el nombre tal cual)
  *   "https://cdn.com/img.jpg"    → ["https://cdn.com/img.jpg"]
  *   "https://drive.google.com/file/d/ID/view" → ["uc?export=view&id=ID"]
@@ -158,6 +164,17 @@ function resolveImagenes(raw) {
   const slashDate = s.match(SLASH_DATE_RE);
   if (slashDate) {
     return expandRange(parseInt(slashDate[1], 10), parseInt(slashDate[2], 10));
+  }
+
+  // Foto(s) numerada(s) + foto de caja compartida (ej: "107-CAJA6", "107-109-CAJA12")
+  const caja = s.match(CAJA_RE);
+  if (caja) {
+    const [, first, second, cajaNum] = caja;
+    const imgs = second
+      ? expandRange(parseInt(first, 10), parseInt(second, 10))
+      : [numToImg(parseInt(first, 10))];
+    imgs.push(`/productos/caja${cajaNum}.png`);
+    return imgs;
   }
 
   // Rango sin extensión (ej: "1-3", "7-9") → carrusel con una imagen por número
