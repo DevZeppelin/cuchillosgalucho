@@ -30,13 +30,21 @@ export function Hero() {
         />
       </div>
 
-      {/* Cuchillo SVG flotante — posición un poco más baja */}
+      {/* Cuchillo flotante — foto real (public/1.png) */}
       <div
         className={`pointer-events-none absolute right-[-14%] md:right-[-6%] lg:right-[-2%] top-[57%] -translate-y-1/2 w-[92%] md:w-[70%] lg:w-[58%] xl:w-[52%] transition-all duration-1000 ${
           mounted ? "opacity-100 translate-x-0" : "opacity-0 translate-x-20"
         }`}
       >
-        <BladeSvg />
+        <Image
+          src="/1.png"
+          alt="Cuchillo Galucho"
+          width={900}
+          height={600}
+          priority
+          className="w-full h-auto animate-float"
+          style={{ filter: "drop-shadow(0 16px 40px rgba(0,0,0,0.22)) drop-shadow(0 4px 12px rgba(117,99,69,0.08))" }}
+        />
       </div>
 
       <div className="relative max-w-7xl mx-auto px-6 lg:px-8 w-full pt-4 md:pt-20 pb-24">
@@ -143,201 +151,3 @@ function Stat({ numero, texto }: { numero: string; texto: string }) {
   );
 }
 
-function BladeSvg() {
-  return (
-    <svg
-      viewBox="0 0 880 280"
-      className="w-full h-auto animate-float"
-      aria-hidden="true"
-      style={{ filter: "drop-shadow(0 16px 40px rgba(0,0,0,0.22)) drop-shadow(0 4px 12px rgba(117,99,69,0.08))" }}
-    >
-      <defs>
-        {/* Gradiente de hoja — vertical, de spine a filo */}
-        <linearGradient id="hg-blade" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%"   stopColor="#0c1420" />
-          <stop offset="12%"  stopColor="#3a4a5e" />
-          <stop offset="26%"  stopColor="#8ca0b8" />
-          <stop offset="42%"  stopColor="#d4e2f0" />
-          <stop offset="56%"  stopColor="#9ab0c4" />
-          <stop offset="70%"  stopColor="#4a5e72" />
-          <stop offset="84%"  stopColor="#b8ccd8" />
-          <stop offset="100%" stopColor="#dceaf4" />
-        </linearGradient>
-
-        {/* Shimmer horizontal sobre la hoja */}
-        <linearGradient id="hg-shimmer" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%"   stopColor="rgba(255,255,255,0)" />
-          <stop offset="45%"  stopColor="rgba(255,255,255,0.03)" />
-          <stop offset="70%"  stopColor="rgba(255,255,255,0.12)" />
-          <stop offset="100%" stopColor="rgba(255,255,255,0.02)" />
-        </linearGradient>
-
-        {/* Virola / bolster */}
-        <linearGradient id="hg-bolster" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%"   stopColor="#6a8098" />
-          <stop offset="22%"  stopColor="#b4c8d8" />
-          <stop offset="42%"  stopColor="#dceaf6" />
-          <stop offset="60%"  stopColor="#a4b8c8" />
-          <stop offset="100%" stopColor="#30404e" />
-        </linearGradient>
-
-        {/* Cabo — madera cálida */}
-        <linearGradient id="hg-handle" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%"   stopColor="#281408" />
-          <stop offset="20%"  stopColor="#4e2a10" />
-          <stop offset="45%"  stopColor="#6e3e1c" />
-          <stop offset="55%"  stopColor="#7c4a22" />
-          <stop offset="78%"  stopColor="#5a3214" />
-          <stop offset="100%" stopColor="#1c0e06" />
-        </linearGradient>
-
-        {/* Remaches */}
-        <radialGradient id="hg-pin" cx="35%" cy="35%" r="65%">
-          <stop offset="0%"  stopColor="#6a8098" />
-          <stop offset="40%" stopColor="#1a2530" />
-          <stop offset="100%" stopColor="#0c1420" />
-        </radialGradient>
-
-        {/* Filtro glow para el filo */}
-        <filter id="hg-edge-glow">
-          <feGaussianBlur stdDeviation="1.8" result="b" />
-          <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
-        </filter>
-      </defs>
-
-      {/* ── Hoja principal ────────────────────────────────── */}
-      <path
-        d="M 76 145
-           Q 420 118 612 110
-           L 636 106 L 636 204
-           Q 420 214 76 155
-           Z"
-        fill="url(#hg-blade)"
-      />
-
-      {/* Shimmer sobre la hoja */}
-      <path
-        d="M 76 145
-           Q 420 118 612 110
-           L 636 106 L 636 204
-           Q 420 214 76 155
-           Z"
-        fill="url(#hg-shimmer)"
-      />
-
-      {/* Sombra del lomo (parte superior oscura) */}
-      <path
-        d="M 76 146 Q 380 122 610 112"
-        stroke="rgba(4,10,18,0.55)"
-        strokeWidth="5"
-        fill="none"
-        strokeLinecap="round"
-      />
-
-      {/* Línea de lomo — highlight metálico */}
-      <path
-        d="M 100 144 Q 400 122 604 113"
-        stroke="rgba(140,170,195,0.5)"
-        strokeWidth="0.9"
-        fill="none"
-        strokeLinecap="round"
-      />
-
-      {/* Fuller (canaleta) */}
-      <path
-        d="M 210 150 Q 430 138 596 134"
-        stroke="rgba(6,12,20,0.72)"
-        strokeWidth="3.2"
-        fill="none"
-        strokeLinecap="round"
-      />
-      {/* Fuller — reflejo superior */}
-      <path
-        d="M 210 149 Q 430 137 596 133"
-        stroke="rgba(150,190,220,0.22)"
-        strokeWidth="1.1"
-        fill="none"
-        strokeLinecap="round"
-      />
-
-      {/* Filo — línea brillante del corte */}
-      <path
-        d="M 82 154 Q 310 212 520 214 Q 590 214 636 202"
-        stroke="rgba(210,238,255,0.80)"
-        strokeWidth="1.5"
-        fill="none"
-        strokeLinecap="round"
-        filter="url(#hg-edge-glow)"
-      />
-
-      {/* ── Virola / bolster ───────────────────────────────── */}
-      <path
-        d="M 612 108 L 638 104 L 638 206 L 612 204 Z"
-        fill="url(#hg-bolster)"
-      />
-      {/* Virola — línea izquierda brillante */}
-      <line x1="612" y1="108" x2="612" y2="204" stroke="#a0bcd0" strokeWidth="1.6" opacity="0.85" />
-      {/* Virola — línea derecha oscura */}
-      <line x1="637" y1="104" x2="637" y2="206" stroke="#1e2c3a" strokeWidth="1" opacity="0.7" />
-      {/* Virola — banda central reflectante */}
-      <rect x="620" y="104" width="9" height="102" fill="rgba(210,238,255,0.16)" />
-
-      {/* ── Cabo ──────────────────────────────────────────── */}
-      <path
-        d="M 638 106 L 856 108 Q 872 108 872 155 Q 872 202 856 202 L 638 206 Z"
-        fill="url(#hg-handle)"
-      />
-
-      {/* Vetas de madera */}
-      <g opacity="0.38" stroke="#120a04" strokeWidth="0.85">
-        <line x1="650" y1="106" x2="650" y2="206" />
-        <line x1="666" y1="106" x2="666" y2="206" />
-        <line x1="684" y1="106" x2="684" y2="206" />
-        <line x1="704" y1="106" x2="704" y2="206" />
-        <line x1="726" y1="106" x2="726" y2="206" />
-        <line x1="750" y1="107" x2="750" y2="205" />
-        <line x1="776" y1="107" x2="776" y2="205" />
-        <line x1="804" y1="108" x2="804" y2="204" />
-        <line x1="836" y1="108" x2="836" y2="203" />
-      </g>
-
-      {/* Brillo superior del cabo */}
-      <path
-        d="M 642 113 Q 750 109 852 111 Q 864 111 868 118"
-        stroke="rgba(160,110,55,0.20)"
-        strokeWidth="5"
-        fill="none"
-        strokeLinecap="round"
-      />
-
-      {/* Sombra inferior del cabo */}
-      <path
-        d="M 642 199 Q 750 203 852 201"
-        stroke="rgba(8,4,2,0.42)"
-        strokeWidth="3"
-        fill="none"
-        strokeLinecap="round"
-      />
-
-      {/* ── Remaches (3) ──────────────────────────────────── */}
-      <circle cx="700" cy="156" r="8.5" fill="#16222e" stroke="#7a98b0" strokeWidth="1.3" />
-      <circle cx="700" cy="156" r="4.5" fill="url(#hg-pin)" />
-      <circle cx="697" cy="153" r="2.2" fill="rgba(210,235,255,0.52)" />
-
-      <circle cx="756" cy="156" r="8.5" fill="#16222e" stroke="#7a98b0" strokeWidth="1.3" />
-      <circle cx="756" cy="156" r="4.5" fill="url(#hg-pin)" />
-      <circle cx="753" cy="153" r="2.2" fill="rgba(210,235,255,0.52)" />
-
-      <circle cx="812" cy="156" r="8.5" fill="#16222e" stroke="#7a98b0" strokeWidth="1.3" />
-      <circle cx="812" cy="156" r="4.5" fill="url(#hg-pin)" />
-      <circle cx="809" cy="153" r="2.2" fill="rgba(210,235,255,0.52)" />
-
-      {/* ── Pomo / cabeza del cabo ─────────────────────────── */}
-      <path
-        d="M 856 108 Q 876 108 876 155 Q 876 202 856 202 L 872 202 Q 888 202 888 155 Q 888 108 872 108 Z"
-        fill="url(#hg-bolster)"
-        opacity="0.80"
-      />
-    </svg>
-  );
-}
