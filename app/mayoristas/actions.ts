@@ -1,6 +1,6 @@
 "use server";
 
-import { getAccesoWEB } from "@/app/lib/catalogo";
+import { getAccesoWEB, getMarkupPct } from "@/app/lib/catalogo";
 import type { AccesoWebContacto } from "@/app/lib/types";
 
 // Contraseña del panel de Raúl para agregar contactos a ACCESOS_WEB.
@@ -48,6 +48,26 @@ const SESSION_MS = 1000 * 60 * 60 * 8; // 8 horas
 // Normaliza un celular a solo dígitos
 function normCel(v: string): string {
   return v.replace(/\D/g, "");
+}
+
+export interface VerificarPasswordResult {
+  ok: boolean;
+  error?: string;
+}
+
+/**
+ * Verifica la contraseña de Raúl al ingresar por primera vez en un
+ * dispositivo nuevo (ver MayoristasGate). Reutiliza la misma contraseña
+ * del panel de accesos — solo Raúl la conoce.
+ */
+export async function verificarPasswordRaulAction(
+  formData: FormData,
+): Promise<VerificarPasswordResult> {
+  const password = String(formData.get("password") ?? "");
+  if (password !== PASSWORD_ACCESOS) {
+    return { ok: false, error: "Contraseña incorrecta" };
+  }
+  return { ok: true };
 }
 
 export async function loginMayoristaAction(formData: FormData): Promise<LoginResult> {
@@ -133,6 +153,16 @@ export async function registrarVentaAction(payload: VentaPayload): Promise<Venta
  */
 export async function listarAccesosWebAction(): Promise<AccesoWebContacto[]> {
   return getAccesoWEB();
+}
+
+/**
+ * Devuelve el % de ganancia minorista actual (hoja COSTOS, celda M5) —
+ * usado en el remito como atajo de "precio de lista minorista".
+ */
+export async function obtenerMarkupMinoristaAction(): Promise<number | null> {
+  const url = process.env.SHEETS_WEBAPP_URL;
+  if (!url) return null;
+  return getMarkupPct(url);
 }
 
 export interface AgregarAccesoResult {

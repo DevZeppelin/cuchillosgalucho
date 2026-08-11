@@ -285,7 +285,7 @@ function rowToProduct(rawRow, index, markupPct = MARKUP_PCT_DEFAULT) {
  * Lee el % de ganancia minorista (hoja COSTOS, celda M5) vía ?config=precios.
  * Si falla o el valor no es válido, usa MARKUP_PCT_DEFAULT.
  */
-async function getMarkupPct(url) {
+export async function getMarkupPct(url) {
   try {
     const res = await fetch(`${url}?config=precios`, { next: { revalidate: 3600 } });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);

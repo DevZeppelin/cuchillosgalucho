@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useCart } from "./CartProvider";
 import {
   listarAccesosWebAction,
+  obtenerMarkupMinoristaAction,
   registrarVentaAction,
   type VentaResult,
 } from "@/app/mayoristas/actions";
@@ -44,6 +45,7 @@ export function RemitoModal({ open, onClose }: { open: boolean; onClose: () => v
   const [recargoPct, setRecargoPct] = useState("0");
   const [accesos, setAccesos] = useState<AccesoWebContacto[]>([]);
   const [contactoSel, setContactoSel] = useState("");
+  const [markupMinorista, setMarkupMinorista] = useState<number | null>(null);
 
   const [paso, setPaso] = useState<"form" | "generando" | "listo">("form");
   const [error, setError] = useState<string | null>(null);
@@ -66,6 +68,14 @@ export function RemitoModal({ open, onClose }: { open: boolean; onClose: () => v
     listarAccesosWebAction()
       .then(setAccesos)
       .catch(() => setAccesos([]));
+  }, [open]);
+
+  // Traer el % de lista minorista (COSTOS!M5) para el atajo del recargo
+  useEffect(() => {
+    if (!open) return;
+    obtenerMarkupMinoristaAction()
+      .then(setMarkupMinorista)
+      .catch(() => setMarkupMinorista(null));
   }, [open]);
 
   if (!open) return null;
@@ -206,6 +216,34 @@ export function RemitoModal({ open, onClose }: { open: boolean; onClose: () => v
             <form onSubmit={onSubmit} className="mt-6 space-y-4">
               <label className="block">
                 <span className={labelClass}>Recargo sobre precio mayorista (%)</span>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setRecargoPct("0")}
+                    className={[
+                      "px-3 py-1.5 rounded-md text-xs font-semibold uppercase tracking-wide transition-all",
+                      pctNum === 0
+                        ? "bg-copper-500 text-white"
+                        : "bg-stone-100 dark:bg-steel-800 text-stone-600 dark:text-steel-300 border border-stone-200 dark:border-steel-700 hover:border-copper-400/50 dark:hover:border-copper-600/50",
+                    ].join(" ")}
+                  >
+                    Mayorista (0%)
+                  </button>
+                  {markupMinorista != null && (
+                    <button
+                      type="button"
+                      onClick={() => setRecargoPct(String(markupMinorista))}
+                      className={[
+                        "px-3 py-1.5 rounded-md text-xs font-semibold uppercase tracking-wide transition-all",
+                        pctNum === markupMinorista
+                          ? "bg-copper-500 text-white"
+                          : "bg-stone-100 dark:bg-steel-800 text-stone-600 dark:text-steel-300 border border-stone-200 dark:border-steel-700 hover:border-copper-400/50 dark:hover:border-copper-600/50",
+                      ].join(" ")}
+                    >
+                      Lista minorista ({markupMinorista}%)
+                    </button>
+                  )}
+                </div>
                 <input
                   type="number"
                   min={0}
@@ -214,10 +252,10 @@ export function RemitoModal({ open, onClose }: { open: boolean; onClose: () => v
                   value={recargoPct}
                   placeholder="0"
                   onChange={(e) => setRecargoPct(e.target.value)}
-                  className={inputClass}
+                  className={`${inputClass} mt-2`}
                 />
                 <span className="mt-1 block text-xs text-stone-400 dark:text-steel-400">
-                  El precio mayorista es el mínimo. Dejalo en 0 para vender al precio de lista.
+                  El precio mayorista es el mínimo. Usá un atajo o escribí un % personalizado por cliente.
                 </span>
               </label>
 
