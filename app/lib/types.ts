@@ -57,3 +57,11 @@ export interface WholesaleSession {
   mail?: string;     // email del mayorista — se usa al enviar consulta por WhatsApp
   celular?: string;  // celular con el que ingresó
 }
+
+// Contacto de la hoja ACCESOS_WEB — clientes mayoristas registrados
+export interface AccesoWebContacto {
+  nombre: string;
+  mail: string;
+  ciudad: string;
+  celular: string;
+}

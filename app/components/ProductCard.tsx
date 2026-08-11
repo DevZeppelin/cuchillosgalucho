@@ -117,7 +117,7 @@ export function ProductCard({ product, showPriceMayorista, badge }: ProductCardP
               {useMayPrice ? "Precio mayorista" : "Precio"}
             </p>
             {selectedSize.precio > 0 ? (
-              <p className="font-display text-[1.6rem] leading-none font-semibold text-gradient-copper tabular-nums">
+              <p className="font-sans text-[1.6rem] leading-none font-bold tracking-tight text-gradient-copper tabular-nums">
                 {formatARS(precio!)}
               </p>
             ) : (

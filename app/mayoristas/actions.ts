@@ -1,6 +1,11 @@
 "use server";
 
 import { getAccesoWEB } from "@/app/lib/catalogo";
+import type { AccesoWebContacto } from "@/app/lib/types";
+
+// Contraseña del panel de Raúl para agregar contactos a ACCESOS_WEB.
+// Se valida de nuevo en el Apps Script como segunda barrera.
+const PASSWORD_ACCESOS = "distribuidoraherrera@gmail.com";
 
 export interface LoginResult {
   ok: boolean;
@@ -119,5 +124,63 @@ export async function registrarVentaAction(payload: VentaPayload): Promise<Venta
   } catch (err) {
     console.error("[ventas] Error al registrar la venta:", err);
     return { ok: false, error: "No se pudo registrar la venta en el sheet" };
+  }
+}
+
+/**
+ * Lista los contactos de la hoja ACCESOS_WEB — usado por el panel de Raúl
+ * para elegir un número existente al generar un remito.
+ */
+export async function listarAccesosWebAction(): Promise<AccesoWebContacto[]> {
+  return getAccesoWEB();
+}
+
+export interface AgregarAccesoResult {
+  ok: boolean;
+  error?: string;
+}
+
+/**
+ * Agrega un contacto (nombre, celular, ciudad) a la hoja ACCESOS_WEB.
+ * Protegido por contraseña — solo Raúl la conoce.
+ */
+export async function agregarAccesoWebAction(
+  formData: FormData,
+): Promise<AgregarAccesoResult> {
+  const password = String(formData.get("password") ?? "");
+  if (password !== PASSWORD_ACCESOS) {
+    return { ok: false, error: "Contraseña incorrecta" };
+  }
+
+  const nombre = String(formData.get("nombre") ?? "").trim();
+  const ciudad = String(formData.get("ciudad") ?? "").trim();
+  const celular = normCel(String(formData.get("celular") ?? ""));
+
+  if (!nombre) return { ok: false, error: "Ingresá el nombre" };
+  if (!ciudad) return { ok: false, error: "Ingresá la ciudad" };
+  if (celular.length < 8) return { ok: false, error: "El celular no parece válido" };
+
+  const url = process.env.SHEETS_WEBAPP_URL;
+  if (!url) {
+    return { ok: false, error: "SHEETS_WEBAPP_URL no está configurada" };
+  }
+
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ accion: "acceso_web", password, nombre, celular, ciudad }),
+      cache: "no-store",
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    const data = await res.json().catch(() => null);
+    if (!data?.ok) {
+      return { ok: false, error: data?.error ?? "El Apps Script rechazó el contacto" };
+    }
+    return { ok: true };
+  } catch (err) {
+    console.error("[accesos] Error al agregar contacto:", err);
+    return { ok: false, error: "No se pudo agregar el contacto en el sheet" };
   }
 }

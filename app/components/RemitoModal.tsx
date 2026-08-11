@@ -2,7 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useCart } from "./CartProvider";
-import { registrarVentaAction, type VentaResult } from "@/app/mayoristas/actions";
+import {
+  listarAccesosWebAction,
+  registrarVentaAction,
+  type VentaResult,
+} from "@/app/mayoristas/actions";
+import type { AccesoWebContacto, CartItem } from "@/app/lib/types";
 import {
   buildRemitoMessage,
   buildWhatsAppUrl,
@@ -16,17 +21,29 @@ import {
   generarRemitoImagen,
 } from "@/app/lib/remitoImagen";
 
+/** Recalcula los precios del carrito aplicando un recargo % sobre el precio mayorista (el mínimo). */
+function aplicarRecargo(items: CartItem[], pct: number): CartItem[] {
+  if (pct <= 0) return items;
+  return items.map((i) => ({
+    ...i,
+    precioUnit: Math.round(i.precioUnit * (1 + pct / 100)),
+  }));
+}
+
 /**
  * Modal del flujo de remito de Raúl: pide los datos del cliente, registra la
  * venta en la hoja VENTAS y ofrece enviar el texto por WhatsApp y compartir o
  * descargar la imagen del remito.
  */
 export function RemitoModal({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { items, total } = useCart();
+  const { items } = useCart();
 
   const [nombre, setNombre] = useState("");
   const [ciudad, setCiudad] = useState("");
   const [celular, setCelular] = useState("");
+  const [recargoPct, setRecargoPct] = useState("0");
+  const [accesos, setAccesos] = useState<AccesoWebContacto[]>([]);
+  const [contactoSel, setContactoSel] = useState("");
 
   const [paso, setPaso] = useState<"form" | "generando" | "listo">("form");
   const [error, setError] = useState<string | null>(null);
@@ -43,7 +60,32 @@ export function RemitoModal({ open, onClose }: { open: boolean; onClose: () => v
     };
   }, [previewUrl]);
 
+  // Traer los contactos de ACCESOS_WEB para elegir el número destino
+  useEffect(() => {
+    if (!open) return;
+    listarAccesosWebAction()
+      .then(setAccesos)
+      .catch(() => setAccesos([]));
+  }, [open]);
+
   if (!open) return null;
+
+  const onSelectContacto = (idx: string) => {
+    setContactoSel(idx);
+    if (idx === "") return;
+    const c = accesos[Number(idx)];
+    if (!c) return;
+    setNombre(c.nombre);
+    setCiudad(c.ciudad);
+    setCelular(c.celular);
+  };
+
+  const pctNum = Math.max(0, Number(recargoPct.replace(",", ".")) || 0);
+  const itemsConRecargo = aplicarRecargo(items, pctNum);
+  const totalConRecargo = itemsConRecargo.reduce(
+    (sum, i) => sum + i.cantidad * i.precioUnit,
+    0,
+  );
 
   const cerrar = () => {
     setPaso("form");
@@ -53,6 +95,8 @@ export function RemitoModal({ open, onClose }: { open: boolean; onClose: () => v
     setPreviewUrl(null);
     setRegistro(null);
     setImagenEstado("pendiente");
+    setRecargoPct("0");
+    setContactoSel("");
     onClose();
   };
 
@@ -73,8 +117,8 @@ export function RemitoModal({ open, onClose }: { open: boolean; onClose: () => v
       numero: generarNumeroRemito(fecha),
       fecha,
       cliente: { nombre: nombre.trim(), ciudad: ciudad.trim(), celular: cel },
-      items,
-      total,
+      items: itemsConRecargo,
+      total: totalConRecargo,
     };
     setRemito(data);
 
@@ -92,8 +136,8 @@ export function RemitoModal({ open, onClose }: { open: boolean; onClose: () => v
       cliente: data.cliente.nombre,
       ciudad: data.cliente.ciudad,
       celular: cel,
-      total,
-      items: items.map((i) => ({
+      total: totalConRecargo,
+      items: itemsConRecargo.map((i) => ({
         producto: i.product.nombre,
         medida: i.product.descripcionCorta,
         cantidad: i.cantidad,
@@ -149,12 +193,53 @@ export function RemitoModal({ open, onClose }: { open: boolean; onClose: () => v
             <p className="mt-2 text-sm text-stone-500 dark:text-steel-300">
               {items.length} producto{items.length !== 1 ? "s" : ""} ·{" "}
               <span className="font-semibold text-copper-600 dark:text-copper-300">
-                {formatARS(total)}
+                {formatARS(totalConRecargo)}
               </span>
+              {pctNum > 0 && (
+                <span className="text-xs text-stone-400 dark:text-steel-400">
+                  {" "}(mayorista + {pctNum}%)
+                </span>
+              )}
               . La venta se registra en la hoja VENTAS.
             </p>
 
             <form onSubmit={onSubmit} className="mt-6 space-y-4">
+              <label className="block">
+                <span className={labelClass}>Recargo sobre precio mayorista (%)</span>
+                <input
+                  type="number"
+                  min={0}
+                  step="0.1"
+                  inputMode="decimal"
+                  value={recargoPct}
+                  placeholder="0"
+                  onChange={(e) => setRecargoPct(e.target.value)}
+                  className={inputClass}
+                />
+                <span className="mt-1 block text-xs text-stone-400 dark:text-steel-400">
+                  El precio mayorista es el mínimo. Dejalo en 0 para vender al precio de lista.
+                </span>
+              </label>
+
+              {accesos.length > 0 && (
+                <label className="block">
+                  <span className={labelClass}>Cliente registrado</span>
+                  <select
+                    value={contactoSel}
+                    onChange={(e) => onSelectContacto(e.target.value)}
+                    className={inputClass}
+                  >
+                    <option value="">Número nuevo / otro</option>
+                    {accesos.map((c, idx) => (
+                      <option key={`${c.celular}-${idx}`} value={String(idx)}>
+                        {c.nombre || "Sin nombre"}
+                        {c.ciudad ? ` — ${c.ciudad}` : ""} — {c.celular}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
+
               <label className="block">
                 <span className={labelClass}>Nombre</span>
                 <input

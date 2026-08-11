@@ -9,6 +9,8 @@
  *   GET  <url>?sheet=ACCESOS_WEB    → hoja ACCESOS_WEB (clientes mayoristas)
  *   GET  <url>?config=precios       → { markupPct } leído de COSTOS!M5
  *   POST <url>  body {accion:"venta", …}  → registra una venta en la hoja VENTAS
+ *   POST <url>  body {accion:"acceso_web", password, nombre, celular, ciudad}
+ *                                    → agrega un contacto a ACCESOS_WEB (panel de Raúl)
  *
  *   Solo se sirven por ?sheet= las hojas de SHEETS_PUBLICAS — el resto
  *   (COSTOS, VENTAS, etc.) contienen datos internos y devuelven error.
@@ -33,6 +35,19 @@
  *   (si se crea una implementación nueva, cambia la URL y hay que
  *   actualizar .env.local)
  *
+ * Dólar automático (una sola vez):
+ *   El precio (TOTAL) se calcula con fórmulas del Sheet que toman el dólar
+ *   de COSTOS!M2. Para que esa celda se actualice sola con el dólar oficial
+ *   todos los días (y el precio se ajuste solo si sube el dólar):
+ *     1. En el editor de Apps Script → reloj ⏰ "Activadores" (Triggers)
+ *          en el menú lateral izquierdo → "+ Añadir activador"
+ *     2. Función a ejecutar: actualizarDolar
+ *     3. Origen del evento: Basado en tiempo → Temporizador diario
+ *        → elegir un horario (ej: 6–7 de la mañana) → Guardar
+ *   A partir de ahí corre solo. Si la API del dólar falla algún día, la
+ *   celda conserva el último valor válido (no la deja en blanco ni rompe
+ *   el sheet).
+ *
  * Recomendación en el Sheet:
  *   Formatear la columna IMAGEN como "Texto sin formato"
  *   (Formato → Número → Texto sin formato) para que valores como "7-9"
@@ -41,6 +56,12 @@
 
 var SHEET_CATALOGO = "INVENTARIO";
 var SHEET_VENTAS = "VENTAS";
+var SHEET_ACCESOS = "ACCESOS_WEB";
+var ACCESOS_HEADERS_DEFAULT = ["NOMBRE", "CELULAR", "CIUDAD"];
+
+// Contraseña que debe mandar el panel de Raúl para poder agregar accesos.
+// Ya se valida también del lado de Next.js; esto es una segunda barrera.
+var PASSWORD_ACCESOS = "distribuidoraherrera@gmail.com";
 
 // Únicas hojas que el web app sirve por ?sheet= (la URL es pública)
 var SHEETS_PUBLICAS = ["INVENTARIO", "ACCESOS_WEB"];
@@ -49,6 +70,12 @@ var SHEETS_PUBLICAS = ["INVENTARIO", "ACCESOS_WEB"];
 var SHEET_COSTOS = "COSTOS";
 var CELDA_MARKUP = "M5";
 var MARKUP_DEFAULT = 90;
+
+// Valor del dólar (oficial, venta): hoja COSTOS, celda M2. Las fórmulas del
+// sheet que calculan TOTAL toman el dólar de acá — actualizarDolar() la
+// mantiene al día sola (ver activador en el encabezado de este archivo).
+var CELDA_DOLAR = "M2";
+var URL_DOLAR_API = "https://dolarapi.com/v1/dolares/oficial";
 
 var VENTAS_HEADERS = [
   "FECHA",
@@ -152,7 +179,15 @@ function doPost(e) {
     return json_({ ok: false, error: "JSON inválido" });
   }
 
-  if (!data || data.accion !== "venta" || !Array.isArray(data.items) || data.items.length === 0) {
+  if (!data || !data.accion) {
+    return json_({ ok: false, error: "Payload inválido" });
+  }
+
+  if (data.accion === "acceso_web") {
+    return registrarAccesoWeb_(data);
+  }
+
+  if (data.accion !== "venta" || !Array.isArray(data.items) || data.items.length === 0) {
     return json_({ ok: false, error: "Payload inválido" });
   }
 
@@ -188,6 +223,101 @@ function doPost(e) {
     .setValues(filas);
 
   return json_({ ok: true, filas: filas.length });
+}
+
+/**
+ * Agrega un contacto mayorista (nombre, celular, ciudad) a la hoja
+ * ACCESOS_WEB — usado por el panel de Raúl. Si la hoja no existe la crea;
+ * si existe pero le faltan columnas NOMBRE/CELULAR/CIUDAD, las agrega al
+ * final para no romper columnas ya usadas (ej: MAIL).
+ *
+ * Body esperado (JSON):
+ *   { accion: "acceso_web", password, nombre, celular, ciudad }
+ */
+function registrarAccesoWeb_(data) {
+  if (String(data.password || "") !== PASSWORD_ACCESOS) {
+    return json_({ ok: false, error: "Contraseña incorrecta" });
+  }
+
+  var celular = String(data.celular || "").replace(/\D/g, "");
+  var nombre = String(data.nombre || "").trim();
+  var ciudad = String(data.ciudad || "").trim();
+
+  if (!nombre || celular.length < 8) {
+    return json_({ ok: false, error: "Faltan datos: nombre y celular son obligatorios" });
+  }
+
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var hoja = ss.getSheetByName(SHEET_ACCESOS);
+
+  if (!hoja) {
+    hoja = ss.insertSheet(SHEET_ACCESOS);
+    hoja.appendRow(ACCESOS_HEADERS_DEFAULT);
+    hoja.getRange(1, 1, 1, ACCESOS_HEADERS_DEFAULT.length).setFontWeight("bold");
+    hoja.setFrozenRows(1);
+  }
+
+  var lastCol = Math.max(hoja.getLastColumn(), 1);
+  var headers = hoja.getRange(1, 1, 1, lastCol).getValues()[0].map(function (h) {
+    return String(h).trim().toUpperCase();
+  });
+
+  function colIndex(nombreCol) {
+    var idx = headers.indexOf(nombreCol);
+    if (idx === -1) {
+      headers.push(nombreCol);
+      hoja.getRange(1, headers.length).setValue(nombreCol).setFontWeight("bold");
+      idx = headers.length - 1;
+    }
+    return idx;
+  }
+
+  var iNombre = colIndex("NOMBRE");
+  var iCelular = colIndex("CELULAR");
+  var iCiudad = colIndex("CIUDAD");
+
+  var fila = new Array(headers.length).fill("");
+  fila[iNombre] = nombre;
+  fila[iCelular] = celular;
+  fila[iCiudad] = ciudad;
+
+  hoja.getRange(hoja.getLastRow() + 1, 1, 1, fila.length).setValues([fila]);
+
+  return json_({ ok: true });
+}
+
+/**
+ * Trae el dólar oficial (venta) y lo escribe en COSTOS!M2. Las fórmulas del
+ * sheet que arman TOTAL a partir de esa celda recalculan solas apenas
+ * cambia, así que el precio queda al día automáticamente.
+ *
+ * Se ejecuta sola vía un activador diario basado en tiempo (configurar una
+ * vez desde el editor de Apps Script — ver el encabezado de este archivo).
+ * También se puede correr a mano desde el editor para probarla.
+ */
+function actualizarDolar() {
+  var hoja = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_COSTOS);
+  if (!hoja) {
+    Logger.log("[dolar] No existe la hoja " + SHEET_COSTOS);
+    return;
+  }
+
+  try {
+    var res = UrlFetchApp.fetch(URL_DOLAR_API, { muteHttpExceptions: true });
+    if (res.getResponseCode() !== 200) {
+      throw new Error("HTTP " + res.getResponseCode());
+    }
+    var data = JSON.parse(res.getContentText());
+    var venta = Number(data && data.venta);
+    if (!venta || isNaN(venta) || venta <= 0) {
+      throw new Error("Respuesta inválida: " + res.getContentText());
+    }
+    hoja.getRange(CELDA_DOLAR).setValue(venta);
+    Logger.log("[dolar] Actualizado a " + venta);
+  } catch (err) {
+    // Si la API falla, no tocar la celda: el sheet conserva el último valor válido
+    Logger.log("[dolar] No se pudo actualizar: " + (err && err.message ? err.message : err));
+  }
 }
 
 function json_(data) {

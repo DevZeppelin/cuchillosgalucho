@@ -43,7 +43,10 @@ export function Hero() {
           height={600}
           priority
           className="w-full h-auto animate-float"
-          style={{ filter: "drop-shadow(0 16px 40px rgba(0,0,0,0.22)) drop-shadow(0 4px 12px rgba(117,99,69,0.08))" }}
+          style={{
+            filter:
+              "drop-shadow(0 16px 40px rgba(0,0,0,0.22)) drop-shadow(0 4px 12px rgba(117,99,69,0.08))",
+          }}
         />
       </div>
 
@@ -72,7 +75,7 @@ export function Hero() {
           >
             <span className="h-px w-12 bg-copper-400" />
             <span className="text-xs uppercase tracking-[0.35em] text-copper-500 dark:text-copper-300">
-              Forja artesanal · Argentina
+              Herrería artesanal · Argentina
             </span>
           </div>
 
@@ -81,9 +84,8 @@ export function Hero() {
               mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
-            <span className="text-stone-900 dark:text-steel-50">Cada filo</span>{" "}
-            <em className="not-italic text-gradient-copper">cuenta una</em>{" "}
-            <span className="text-gradient-steel italic">historia.</span>
+            <span className="text-stone-900 dark:text-steel-50">Cuchillos</span>{" "}
+            <em className="not-italic text-gradient-copper">artesanales.</em>
           </h1>
 
           <p
@@ -91,8 +93,9 @@ export function Hero() {
               mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
-            Cuchillos forjados a mano en Argentina. Acero Inoxidable 420 y cabos en
-            materiales nobles. Piezas pensadas para durar generaciones.
+            Garantía eterna para una hoja con historia. Te invitamos a formar
+            parte de nuestra historia y llevar a tu mesa un pedazo de nuestra
+            tradición.
           </p>
 
           <div
@@ -107,7 +110,13 @@ export function Hero() {
               <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
               Ver catálogo
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path
+                  d="M5 12h14M13 6l6 6-6 6"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
             </Link>
             <Link
@@ -124,9 +133,10 @@ export function Hero() {
               mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}
           >
-            <Stat numero="40K+" texto="Seguidores en Instagram" />
+            <Stat numero="21K+" texto="Seguidores en Instagram" />
+            <Stat numero="40K+" texto="Seguidores en TikTok" />
             <Stat numero="100%" texto="Hecho a mano" />
-            <Stat numero="+15" texto="Años forjando" />
+            <Stat numero="+11" texto="Años" />
           </div>
         </div>
       </div>
@@ -143,11 +153,12 @@ export function Hero() {
 function Stat({ numero, texto }: { numero: string; texto: string }) {
   return (
     <div className="border-l border-copper-400/40 pl-4">
-      <p className="font-display text-3xl md:text-4xl text-gradient-copper">{numero}</p>
+      <p className="font-display text-3xl md:text-4xl text-gradient-copper">
+        {numero}
+      </p>
       <p className="text-xs uppercase tracking-widest text-stone-500 dark:text-steel-300 mt-1 leading-tight">
         {texto}
       </p>
     </div>
   );
 }
-

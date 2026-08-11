@@ -21,12 +21,12 @@ export default async function MayoristasPage() {
           </p>
           <h1 className="font-display text-4xl md:text-6xl lg:text-7xl text-steel-50 leading-tight">
             Una alianza{" "}
-            <em className="text-gradient-copper not-italic">forjada</em>{" "}
-            a fuego.
+            <em className="text-gradient-copper not-italic">hecha</em> a
+            fuego.
           </h1>
           <p className="mt-5 max-w-2xl mx-auto text-steel-300">
-            Espacio reservado para nuestros aliados. Ingresá con tu usuario para ver
-            precios mayoristas, armar el pedido y enviarlo en un clic.
+            Espacio reservado para nuestros aliados. Ingresá con tu usuario para
+            ver precios mayoristas, armar el pedido y enviarlo en un clic.
           </p>
         </div>
       </section>

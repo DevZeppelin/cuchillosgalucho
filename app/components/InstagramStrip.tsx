@@ -5,7 +5,7 @@ type Post = {
   bajada: string;
   likes: string;
   gradient: string;
-  icono: "fuego" | "forja" | "acero" | "madera" | "edicion" | "cuero";
+  icono: "fuego" | "cuchillos" | "herreria" | "acero" | "madera" | "edicion" | "cuero";
 };
 
 const POSTS: Post[] = [
@@ -17,11 +17,11 @@ const POSTS: Post[] = [
     icono: "fuego",
   },
   {
-    titulo: "Forja en vivo",
-    bajada: "Del yunque a tu mesa",
+    titulo: "Herrería en vivo",
+    bajada: "Del taller a tu mesa",
     likes: "3.1K",
     gradient: "from-steel-700 via-steel-500 to-steel-900",
-    icono: "forja",
+    icono: "herreria",
   },
   {
     titulo: "Filo Inox 420",
@@ -63,12 +63,11 @@ export function InstagramStrip() {
               Nuestra comunidad
             </p>
             <h2 className="font-display text-4xl md:text-5xl text-steel-50">
-              Más de{" "}
-              <span className="text-gradient-copper">40.000</span>{" "}
-              forjeros en Instagram
+              Más de <span className="text-gradient-copper">21.000</span>{" "}
+              cuchilleros en Instagram
             </h2>
             <p className="mt-4 text-steel-300">
-              Compartimos cada paso del proceso. Desde el yunque hasta tu mesa.
+              Compartimos cada paso del proceso. Desde el taller hasta tu mesa.
             </p>
             <a
               href="https://instagram.com"
@@ -186,7 +185,7 @@ function PostIcon({ kind }: { kind: Post["icono"] }) {
           />
         </svg>
       );
-    case "forja":
+    case "herreria":
       // martillo
       return (
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none">

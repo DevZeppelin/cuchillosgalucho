@@ -190,6 +190,14 @@ function resolveImagenes(raw) {
   return [`/productos/${s}`];
 }
 
+// La fila tiene ORDEN = 0 explícito en el sheet (no vacío) → se oculta del catálogo
+function tieneOrdenCero(rawRow) {
+  const row = {};
+  for (const [k, v] of Object.entries(rawRow)) row[nk(k)] = v;
+  const raw = pick(row, "orden");
+  return raw !== undefined && String(raw).trim() === "0";
+}
+
 function makeSlug(nombre, id) {
   const base = String(nombre ?? "")
     .normalize("NFD")
@@ -314,6 +322,7 @@ export async function getCatalogo() {
 
     return rows
       .filter((r) => r && typeof r === "object")
+      .filter((r) => !tieneOrdenCero(r))
       .map((r, i) => rowToProduct(r, i, markupPct))
       .filter((p) => {
         // Descartar filas con errores de Excel (#REF!, precios imposibles)
@@ -333,11 +342,11 @@ export async function getCatalogo() {
 
 /**
  * Lee la hoja ACCESO_WEB del mismo Google Sheet.
- * Columnas esperadas: nombre (opcional), mail (opcional), celular (requerido).
- * Requiere que el Apps Script acepte ?sheet=ACCESO_WEB.
+ * Columnas esperadas: nombre (opcional), mail (opcional), ciudad (opcional),
+ * celular (requerido). Requiere que el Apps Script acepte ?sheet=ACCESO_WEB.
  * Se llama sin cache para que los cambios en la hoja sean inmediatos.
  *
- * @returns {Promise<Array<{nombre: string, mail: string, celular: string}>>}
+ * @returns {Promise<Array<{nombre: string, mail: string, ciudad: string, celular: string}>>}
  */
 export async function getAccesoWEB() {
   const url = process.env.SHEETS_WEBAPP_URL;
@@ -360,6 +369,7 @@ export async function getAccesoWEB() {
         return {
           nombre:  String(pick(row, "nombre", "name", "comercio", "razon_social") ?? "").trim(),
           mail:    String(pick(row, "mail", "email", "correo", "e_mail") ?? "").trim().toLowerCase(),
+          ciudad:  String(pick(row, "ciudad", "localidad", "city") ?? "").trim(),
           celular: String(pick(row, "celular", "cel", "telefono", "phone", "whatsapp") ?? "")
             .replace(/\D/g, ""),
         };

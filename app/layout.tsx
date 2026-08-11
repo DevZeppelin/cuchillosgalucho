@@ -23,11 +23,11 @@ const cormorant = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: "Cuchillos Galucho — Forja artesanal argentina",
+  title: "Cuchillos Galucho — Herrería artesanal argentina",
   description:
     "Cuchillos artesanales argentinos. Acero Inoxidable 420, cabos en madera noble. Hechos a mano por Cuchillos Galucho.",
   openGraph: {
-    title: "Cuchillos Galucho — Forja artesanal argentina",
+    title: "Cuchillos Galucho — Herrería artesanal argentina",
     description:
       "Cuchillos artesanales argentinos. Hechos a mano, listos para toda la vida.",
     type: "website",

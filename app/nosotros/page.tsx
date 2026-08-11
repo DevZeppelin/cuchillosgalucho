@@ -6,7 +6,7 @@ import { FamososCarousel } from "@/app/components/FamososCarousel";
 export const metadata: Metadata = {
   title: "Nosotros — Cuchillos Galucho",
   description:
-    "La historia de Cuchillos Galucho: forja artesanal argentina con más de 15 años de oficio y una comunidad de 40 mil seguidores.",
+    "La historia de Cuchillos Galucho: el renacer de Raúl Herrera en Dolores, Buenos Aires, y el homenaje a su padre que le dio nombre a la marca.",
 };
 
 export default function NosotrosPage() {
@@ -20,12 +20,13 @@ export default function NosotrosPage() {
             Cuchillos Galucho
           </p>
           <h1 className="font-display text-5xl md:text-7xl lg:text-8xl text-stone-900 dark:text-steel-50 leading-[1] mb-6">
-            <em className="text-gradient-copper not-italic">Forjadores</em>{" "}
-            del oficio.
+            <em className="text-gradient-copper not-italic">Herrería</em> de
+            oficio.
           </h1>
           <p className="text-lg md:text-xl text-stone-600 dark:text-steel-300 max-w-2xl mx-auto leading-relaxed">
-            Una historia argentina hecha de fuego, paciencia y manos que saben. Cada
-            cuchillo lleva el peso de más de quince años de oficio.
+            Un renacer hecho a mano en Dolores, Buenos Aires. Cada cuchillo
+            lleva el nombre de un padre, el oficio de un hijo y el peso de una
+            historia familiar.
           </p>
         </div>
       </section>
@@ -39,25 +40,28 @@ export default function NosotrosPage() {
                 La historia
               </p>
               <h2 className="font-display text-4xl md:text-5xl text-stone-900 dark:text-steel-50 leading-tight mb-6">
-                Empezó en un{" "}
-                <em className="text-gradient-copper not-italic">taller chico</em>,
-                con un yunque heredado.
+                Empezó casi de{" "}
+                <em className="text-gradient-copper not-italic">cero</em>, con
+                un horno a gas y un soplete.
               </h2>
               <div className="space-y-4 text-stone-600 dark:text-steel-300 leading-relaxed">
                 <p>
-                  Cuchillos Galucho nace de una obsesión simple: hacer la mejor pieza
-                  posible, con los materiales que siempre se usaron, sin atajos
-                  industriales.
+                  Cuchillos Galucho nació en Dolores, Buenos Aires, como el
+                  renacer de su creador, Raúl Herrera. Tras superar una dura
+                  enfermedad, Raúl decidió dar un vuelco definitivo a su vida
+                  y volcarse por completo al noble oficio de la herrería y la
+                  cuchillería artesanal.
                 </p>
                 <p>
-                  Lo que empezó como un oficio familiar terminó convirtiéndose en una
-                  marca reconocida en todo el país. Hoy mandamos piezas a todas las
-                  provincias y a más de diez países, sin perder la mano artesanal que
-                  nos define.
+                  Lo que comenzó casi desde cero, con un horno a gas, un
+                  soplete y una dedicación inquebrantable, pronto se convirtió
+                  en un símbolo de la tradición cuchillera argentina.
                 </p>
                 <p>
-                  Cada cuchillo pasa por las mismas manos. Desde la forja hasta el
-                  ajuste del cabo. Esa firma se nota.
+                  Cada cuchillo es una obra única, hecha a mano, que combina
+                  aceros de máxima calidad con cabos cuidadosamente
+                  seleccionados en madera, asta, hueso, alpaca y otros
+                  materiales nobles.
                 </p>
               </div>
             </div>
@@ -86,14 +90,38 @@ export default function NosotrosPage() {
         </div>
       </section>
 
+      {/* El nombre */}
+      <section className="relative py-20 lg:py-28 wood-texture">
+        <div className="absolute inset-0 bg-gradient-to-r from-steel-950/95 via-steel-950/85 to-steel-950/60" />
+        <div className="relative max-w-4xl mx-auto px-6 lg:px-8 text-center">
+          <Reveal>
+            <p className="text-xs uppercase tracking-[0.4em] text-copper-300 mb-6">
+              El origen del nombre
+            </p>
+            <blockquote className="font-display text-3xl md:text-5xl text-steel-50 leading-tight">
+              &ldquo;Galucho&rdquo; evoca el apodo de{" "}
+              <em className="text-gradient-copper not-italic">
+                su padre
+              </em>
+              , quien partió cuando Raúl era apenas un niño.
+            </blockquote>
+            <p className="mt-6 text-steel-300 max-w-2xl mx-auto leading-relaxed">
+              El nombre de la marca es un homenaje cargado de orgullo y amor
+              familiar. Hoy, cada pieza es un puente vivo hacia su recuerdo y
+              sus raíces.
+            </p>
+          </Reveal>
+        </div>
+      </section>
+
       {/* Stats grandes */}
       <section className="relative py-20">
         <div className="max-w-6xl mx-auto px-6 lg:px-8">
           <Reveal>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
               {[
-                { n: "15+", t: "Años de oficio" },
-                { n: "40K+", t: "En Instagram" },
+                { n: "21K+", t: "En Instagram" },
+                { n: "40K+", t: "En TikTok" },
                 { n: "10+", t: "Países" },
                 { n: "100%", t: "Hecho a mano" },
               ].map(({ n, t }) => (
@@ -114,17 +142,53 @@ export default function NosotrosPage() {
         </div>
       </section>
 
+      {/* Festivales */}
+      <section className="relative py-20 lg:py-28">
+        <div className="max-w-5xl mx-auto px-6 lg:px-8 text-center">
+          <Reveal>
+            <p className="text-xs uppercase tracking-[0.4em] text-copper-500 dark:text-copper-400 mb-4">
+              Presencia federal
+            </p>
+            <h2 className="font-display text-4xl md:text-5xl text-stone-900 dark:text-steel-50 leading-tight mb-6">
+              De <em className="text-gradient-copper not-italic">festival</em>{" "}
+              en festival.
+            </h2>
+            <p className="text-stone-600 dark:text-steel-300 max-w-2xl mx-auto leading-relaxed mb-10">
+              La excelencia de su trabajo llevó a Cuchillos Galucho a
+              acompañar a campeones de algunos de los festivales y encuentros
+              más importantes del país.
+            </p>
+          </Reveal>
+          <Reveal delay={100}>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[
+                "Festival de Jesús María, Córdoba",
+                "Festival del Caldén, San Luis",
+                "Festival de Diamante, Entre Ríos",
+                "Jineteadas en toda la Argentina",
+              ].map((f) => (
+                <div
+                  key={f}
+                  className="p-5 rounded-xl bg-white dark:bg-steel-900/50 border border-stone-200 dark:border-steel-800 text-sm text-stone-600 dark:text-steel-300"
+                >
+                  {f}
+                </div>
+              ))}
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
       {/* Famosos */}
       <FamososCarousel
         eyebrow="Quienes los usan"
         titulo={
           <>
-            De{" "}
-            <em className="text-gradient-copper not-italic">la cocina</em> al
-            escenario.
+            El cuchillo de{" "}
+            <em className="text-gradient-copper not-italic">los famosos</em>.
           </>
         }
-        descripcion="Nuestras piezas eligen su lugar. Compartimos algunas de las personas que nos hicieron el aguante."
+        descripcion="Sus piezas también llegaron a manos de reconocidas personalidades. Compartimos algunas de las personas que nos hicieron el aguante."
       />
 
       {/* Detrás de escena */}
@@ -145,10 +209,10 @@ export default function NosotrosPage() {
           <div className="grid md:grid-cols-2 gap-6">
             <Reveal>
               <BackstageCard
-                src="/taller.jpg"
-                eyebrow="El taller"
-                titulo="Donde se forja cada filo."
-                bajada="Acero al rojo vivo, yunque y paciencia. Acá nace cada pieza."
+                src="/premio.jpeg"
+                eyebrow="El reconocimiento"
+                titulo="El trabajo que se premia."
+                bajada="Cada pieza reconocida en los festivales más importantes del país."
               />
             </Reveal>
             <Reveal delay={120}>
@@ -163,21 +227,26 @@ export default function NosotrosPage() {
         </div>
       </section>
 
-      {/* Filosofía */}
+      {/* Garantía y legado */}
       <section className="relative py-20 lg:py-28">
         <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
           <Reveal>
             <p className="text-xs uppercase tracking-[0.4em] text-copper-500 dark:text-copper-400 mb-6">
-              Nuestra forma
+              Garantía de por vida
             </p>
             <blockquote className="font-display text-3xl md:text-5xl text-stone-800 dark:text-steel-100 italic leading-tight">
-              "Un buen cuchillo es{" "}
+              &ldquo;Un Galucho está hecho para acompañar historias y
+              convertirse en{" "}
               <span className="text-gradient-copper not-italic font-normal">
-                la herramienta
+                un legado eterno
               </span>{" "}
-              y la herencia."
+              para compartir alrededor del fuego.&rdquo;
             </blockquote>
-            <p className="mt-6 text-stone-500 dark:text-steel-300">— Galucho</p>
+            <p className="mt-6 text-stone-500 dark:text-steel-300 max-w-2xl mx-auto leading-relaxed">
+              Con absoluta confianza en la nobleza y calidad de sus trabajos,
+              Cuchillos Galucho ofrece garantía de por vida, asegurando que
+              cada hoja pase de generación en generación.
+            </p>
           </Reveal>
         </div>
       </section>

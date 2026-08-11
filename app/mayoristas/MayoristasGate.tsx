@@ -69,7 +69,7 @@ export function MayoristasGate({ products }: { products: Product[] }) {
               <p className="text-xs uppercase tracking-widest text-steel-300">
                 Ahorro estimado en catálogo
               </p>
-              <p className="font-display text-3xl text-gradient-copper">
+              <p className="font-sans text-3xl font-bold tracking-tight text-gradient-copper tabular-nums">
                 {formatARS(ahorroTotal)}
               </p>
               <button

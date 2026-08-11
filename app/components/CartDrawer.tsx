@@ -4,12 +4,14 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useCart } from "./CartProvider";
 import { RemitoModal } from "./RemitoModal";
+import { AccesoWebModal } from "./AccesoWebModal";
 import { buildOrderMessage, buildWhatsAppUrl, esRaul, formatARS } from "@/app/lib/whatsapp";
 
 export function CartDrawer() {
   const { items, isOpen, close, setCantidad, remove, total, isMayorista, mayorista, clear } =
     useCart();
   const [remitoOpen, setRemitoOpen] = useState(false);
+  const [accesoOpen, setAccesoOpen] = useState(false);
 
   // Raúl (dueño) logueado como mayorista → en vez de enviarse el pedido a sí
   // mismo, genera un remito para su cliente y registra la venta en VENTAS
@@ -76,6 +78,14 @@ export function CartDrawer() {
               <p className="text-xs uppercase tracking-widest text-copper-500 dark:text-copper-400 mt-0.5">
                 Precios mayoristas
               </p>
+            )}
+            {raul && (
+              <button
+                onClick={() => setAccesoOpen(true)}
+                className="text-xs uppercase tracking-widest text-stone-400 dark:text-steel-400 hover:text-copper-500 dark:hover:text-copper-400 transition-colors mt-1 underline underline-offset-2"
+              >
+                + Agregar acceso mayorista
+              </button>
             )}
           </div>
           <button
@@ -176,7 +186,7 @@ export function CartDrawer() {
               <span className="text-stone-500 dark:text-steel-300 uppercase text-xs tracking-widest">
                 Total
               </span>
-              <span className="font-display text-3xl text-gradient-copper tabular-nums">
+              <span className="font-sans text-3xl font-bold tracking-tight text-gradient-copper tabular-nums">
                 {formatARS(total)}
               </span>
             </div>
@@ -212,6 +222,7 @@ export function CartDrawer() {
       </aside>
 
       {raul && <RemitoModal open={remitoOpen} onClose={() => setRemitoOpen(false)} />}
+      {raul && <AccesoWebModal open={accesoOpen} onClose={() => setAccesoOpen(false)} />}
     </>
   );
 }
