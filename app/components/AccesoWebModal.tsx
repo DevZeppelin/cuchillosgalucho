@@ -3,12 +3,21 @@
 import { useState } from "react";
 import { agregarAccesoWebAction } from "@/app/mayoristas/actions";
 
+// Guarda la contraseña del panel de Raúl en este dispositivo después de
+// validarla una vez, así no se vuelve a pedir para agregar otro contacto.
+const ACCESO_PWD_KEY = "galucho.raul.accesos.pwd.v1";
+
+function passwordGuardada(): string {
+  return typeof window !== "undefined" ? localStorage.getItem(ACCESO_PWD_KEY) ?? "" : "";
+}
+
 /**
  * Modal del panel de Raúl para agregar un contacto mayorista (nombre,
- * celular, ciudad) a la hoja ACCESOS_WEB. Protegido por contraseña.
+ * celular, ciudad) a la hoja ACCESOS_WEB. Protegido por contraseña, que se
+ * guarda en el dispositivo tras la primera vez.
  */
 export function AccesoWebModal({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const [password, setPassword] = useState("");
+  const [password, setPassword] = useState(passwordGuardada);
   const [nombre, setNombre] = useState("");
   const [ciudad, setCiudad] = useState("");
   const [celular, setCelular] = useState("");
@@ -18,8 +27,9 @@ export function AccesoWebModal({ open, onClose }: { open: boolean; onClose: () =
 
   if (!open) return null;
 
+  const pedirPassword = password === "";
+
   const cerrar = () => {
-    setPassword("");
     setNombre("");
     setCiudad("");
     setCelular("");
@@ -40,9 +50,16 @@ export function AccesoWebModal({ open, onClose }: { open: boolean; onClose: () =
       fd.set("celular", celular);
       const result = await agregarAccesoWebAction(fd);
       if (!result.ok) {
+        // Si la contraseña guardada dejó de ser válida, la olvidamos para
+        // que se vuelva a pedir en el próximo intento.
+        if (pedirPassword === false) {
+          localStorage.removeItem(ACCESO_PWD_KEY);
+          setPassword("");
+        }
         setError(result.error ?? "No se pudo agregar el contacto");
         return;
       }
+      if (pedirPassword) localStorage.setItem(ACCESO_PWD_KEY, password);
       setOk(true);
       setNombre("");
       setCiudad("");
@@ -112,16 +129,22 @@ export function AccesoWebModal({ open, onClose }: { open: boolean; onClose: () =
           </div>
         ) : (
           <form onSubmit={onSubmit} className="mt-6 space-y-4">
-            <label className="block">
-              <span className={labelClass}>Contraseña</span>
-              <input
-                type="password"
-                value={password}
-                autoComplete="off"
-                onChange={(e) => setPassword(e.target.value)}
-                className={inputClass}
-              />
-            </label>
+            {pedirPassword && (
+              <label className="block">
+                <span className={labelClass}>Contraseña</span>
+                <input
+                  type="password"
+                  value={password}
+                  autoComplete="off"
+                  autoFocus
+                  onChange={(e) => setPassword(e.target.value)}
+                  className={inputClass}
+                />
+                <span className="mt-1 block text-xs text-stone-400 dark:text-steel-400">
+                  Se pide una sola vez en este dispositivo.
+                </span>
+              </label>
+            )}
             <label className="block">
               <span className={labelClass}>Nombre</span>
               <input
