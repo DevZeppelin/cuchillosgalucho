@@ -135,7 +135,6 @@ export function Hero() {
           >
             <Stat numero="21K+" texto="Seguidores en Instagram" />
             <Stat numero="40K+" texto="Seguidores en TikTok" />
-            <Stat numero="100%" texto="Hecho a mano" />
             <Stat numero="+11" texto="Años" />
           </div>
         </div>
