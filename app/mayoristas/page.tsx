@@ -19,12 +19,12 @@ export default async function MayoristasPage() {
           <p className="text-xs uppercase tracking-[0.4em] text-copper-400 mb-4">
             Comercios y revendedores
           </p>
-          <h1 className="font-display text-4xl md:text-6xl lg:text-7xl text-steel-50 leading-tight">
+          <h1 className="font-display text-4xl md:text-6xl lg:text-7xl text-steel-800 dark:text-steel-50 leading-tight">
             Una alianza{" "}
             <em className="text-gradient-copper not-italic">hecha</em> a
             fuego.
           </h1>
-          <p className="mt-5 max-w-2xl mx-auto text-steel-300">
+          <p className="mt-5 max-w-2xl mx-auto text-steel-600 dark:text-steel-300">
             Espacio reservado para nuestros aliados. Ingresá con tu usuario para
             ver precios mayoristas, armar el pedido y enviarlo en un clic.
           </p>

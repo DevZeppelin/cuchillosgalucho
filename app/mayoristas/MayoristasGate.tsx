@@ -146,7 +146,7 @@ export function MayoristasGate({ products }: { products: Product[] }) {
             <p className="text-xs uppercase tracking-[0.4em] text-copper-400 mb-3">
               Catálogo mayorista
             </p>
-            <h3 className="font-display text-3xl md:text-4xl text-steel-50">
+            <h3 className="font-display text-3xl md:text-4xl text-steel-800 dark:text-steel-50">
               Tu lista de{" "}
               <em className="text-gradient-copper not-italic">precios</em>
             </h3>

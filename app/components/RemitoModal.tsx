@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useCart } from "./CartProvider";
+import { ClienteCombobox } from "./ClienteCombobox";
 import {
   listarAccesosWebAction,
   obtenerMarkupMinoristaAction,
@@ -44,7 +45,7 @@ export function RemitoModal({ open, onClose }: { open: boolean; onClose: () => v
   const [celular, setCelular] = useState("");
   const [recargoPct, setRecargoPct] = useState("0");
   const [accesos, setAccesos] = useState<AccesoWebContacto[]>([]);
-  const [contactoSel, setContactoSel] = useState("");
+  const [clienteSel, setClienteSel] = useState<AccesoWebContacto | null>(null);
   const [markupMinorista, setMarkupMinorista] = useState<number | null>(null);
 
   const [paso, setPaso] = useState<"form" | "generando" | "listo">("form");
@@ -80,14 +81,18 @@ export function RemitoModal({ open, onClose }: { open: boolean; onClose: () => v
 
   if (!open) return null;
 
-  const onSelectContacto = (idx: string) => {
-    setContactoSel(idx);
-    if (idx === "") return;
-    const c = accesos[Number(idx)];
-    if (!c) return;
+  const onSelectContacto = (c: AccesoWebContacto) => {
+    setClienteSel(c);
     setNombre(c.nombre);
     setCiudad(c.ciudad);
     setCelular(c.celular);
+  };
+
+  const limpiarCliente = () => {
+    setClienteSel(null);
+    setNombre("");
+    setCiudad("");
+    setCelular("");
   };
 
   const pctNum = Math.max(0, Number(recargoPct.replace(",", ".")) || 0);
@@ -106,7 +111,7 @@ export function RemitoModal({ open, onClose }: { open: boolean; onClose: () => v
     setRegistro(null);
     setImagenEstado("pendiente");
     setRecargoPct("0");
-    setContactoSel("");
+    setClienteSel(null);
     onClose();
   };
 
@@ -260,22 +265,20 @@ export function RemitoModal({ open, onClose }: { open: boolean; onClose: () => v
               </label>
 
               {accesos.length > 0 && (
-                <label className="block">
-                  <span className={labelClass}>Cliente registrado</span>
-                  <select
-                    value={contactoSel}
-                    onChange={(e) => onSelectContacto(e.target.value)}
-                    className={inputClass}
-                  >
-                    <option value="">Número nuevo / otro</option>
-                    {accesos.map((c, idx) => (
-                      <option key={`${c.celular}-${idx}`} value={String(idx)}>
-                        {c.nombre || "Sin nombre"}
-                        {c.ciudad ? ` — ${c.ciudad}` : ""} — {c.celular}
-                      </option>
-                    ))}
-                  </select>
-                </label>
+                <ClienteCombobox
+                  contactos={accesos}
+                  onSelect={onSelectContacto}
+                  onClear={limpiarCliente}
+                  seleccionadoLabel={
+                    clienteSel
+                      ? `${clienteSel.nombre || "Sin nombre"}${
+                          clienteSel.ciudad ? ` · ${clienteSel.ciudad}` : ""
+                        } · ${clienteSel.celular}`
+                      : null
+                  }
+                  inputClass={inputClass}
+                  labelClass={labelClass}
+                />
               )}
 
               <label className="block">
