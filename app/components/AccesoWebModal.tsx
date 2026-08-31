@@ -59,7 +59,7 @@ export function AccesoWebModal({ open, onClose }: { open: boolean; onClose: () =
         setError(result.error ?? "No se pudo agregar el contacto");
         return;
       }
-      if (pedirPassword) localStorage.setItem(ACCESO_PWD_KEY, password);
+      if (pedirPassword) localStorage.setItem(ACCESO_PWD_KEY, password.trim().toLowerCase());
       setOk(true);
       setNombre("");
       setCiudad("");
@@ -136,6 +136,9 @@ export function AccesoWebModal({ open, onClose }: { open: boolean; onClose: () =
                   type="password"
                   value={password}
                   autoComplete="off"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
                   autoFocus
                   onChange={(e) => setPassword(e.target.value)}
                   className={inputClass}

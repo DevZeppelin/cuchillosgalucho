@@ -254,6 +254,9 @@ export function MayoristasGate({ products }: { products: Product[] }) {
                   <input
                     type="password"
                     autoComplete="off"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
                     autoFocus
                     value={passwordRaul}
                     onChange={(e) => setPasswordRaul(e.target.value)}

@@ -7,6 +7,13 @@ import type { AccesoWebContacto } from "@/app/lib/types";
 // Se valida de nuevo en el Apps Script como segunda barrera.
 const PASSWORD_ACCESOS = "distribuidoraherrera@gmail.com";
 
+// La contraseña es un email, así que en el celular el teclado suele
+// capitalizar la primera letra o dejar un espacio al autocompletar.
+// Comparamos normalizado para que eso no cuente como incorrecta.
+function passwordOk(input: string): boolean {
+  return input.trim().toLowerCase() === PASSWORD_ACCESOS;
+}
+
 export interface LoginResult {
   ok: boolean;
   error?: string;
@@ -64,7 +71,7 @@ export async function verificarPasswordRaulAction(
   formData: FormData,
 ): Promise<VerificarPasswordResult> {
   const password = String(formData.get("password") ?? "");
-  if (password !== PASSWORD_ACCESOS) {
+  if (!passwordOk(password)) {
     return { ok: false, error: "Contraseña incorrecta" };
   }
   return { ok: true };
@@ -178,7 +185,7 @@ export async function agregarAccesoWebAction(
   formData: FormData,
 ): Promise<AgregarAccesoResult> {
   const password = String(formData.get("password") ?? "");
-  if (password !== PASSWORD_ACCESOS) {
+  if (!passwordOk(password)) {
     return { ok: false, error: "Contraseña incorrecta" };
   }
 
@@ -199,7 +206,13 @@ export async function agregarAccesoWebAction(
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({ accion: "acceso_web", password, nombre, celular, ciudad }),
+      body: JSON.stringify({
+        accion: "acceso_web",
+        password: PASSWORD_ACCESOS,
+        nombre,
+        celular,
+        ciudad,
+      }),
       cache: "no-store",
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);

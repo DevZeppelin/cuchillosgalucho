@@ -101,6 +101,17 @@ html.dark {
   }
 }
 
+/* iOS Safari hace zoom automático al enfocar cualquier campo de texto con
+   font-size computado < 16px. Forzamos 16px como piso en todos los controles
+   de formulario. Regla sin @layer a propósito: así gana sobre las utilidades
+   de Tailwind (text-sm, text-xs, …) que se apliquen a un input.
+   NO bajar de 16px en inputs/select/textarea en ningún desarrollo futuro. */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+select,
+textarea {
+  font-size: max(16px, 1rem);
+}
+
 @layer utilities {
   .font-display {
     font-family: var(--font-cormorant), Georgia, serif;

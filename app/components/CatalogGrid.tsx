@@ -120,7 +120,7 @@ export function CatalogGrid({ products, showPriceMayorista }: CatalogGridProps) 
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
           placeholder="Buscar pieza…"
-          className="w-full bg-white dark:bg-steel-900/70 border border-stone-200 dark:border-steel-700 focus:border-copper-400 dark:focus:border-copper-600 rounded-xl pl-11 pr-10 py-3.5 text-sm text-stone-800 dark:text-steel-100 placeholder:text-stone-400 dark:placeholder:text-steel-600 focus:outline-none transition-colors duration-200"
+          className="w-full bg-white dark:bg-steel-900/70 border border-stone-200 dark:border-steel-700 focus:border-copper-400 dark:focus:border-copper-600 rounded-xl pl-11 pr-10 py-3.5 text-base text-stone-800 dark:text-steel-100 placeholder:text-stone-400 dark:placeholder:text-steel-600 focus:outline-none transition-colors duration-200"
         />
         {busqueda && (
           <button

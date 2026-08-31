@@ -8,7 +8,7 @@ import { useCart } from "./CartProvider";
 import { ThemeToggle } from "./ThemeToggle";
 
 export function Header() {
-  const { cantidad, toggle, isMayorista, mayorista, setMayorista } = useCart();
+  const { cantidad, toggle, isMayorista, mayorista } = useCart();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [bump, setBump] = useState(false);
@@ -79,18 +79,14 @@ export function Header() {
 
         <div className="flex items-center gap-1 lg:gap-2">
           {isMayorista && mayorista && (
-            <div className="hidden sm:flex flex-col items-end leading-tight">
-              <span className="text-[10px] uppercase tracking-widest text-copper-500 dark:text-copper-400">
-                Mayorista
-              </span>
-              <button
-                onClick={() => setMayorista(null)}
-                className="text-xs text-stone-600 dark:text-steel-200 hover:text-copper-500 dark:hover:text-copper-400 transition-colors"
-                title="Cerrar sesión"
-              >
-                {mayorista.nombreComercial}
-              </button>
-            </div>
+            <Link
+              href="/mayoristas"
+              title={`Sesión mayorista activa — ${mayorista.nombreComercial}`}
+              className="flex items-center gap-1.5 rounded-full border border-copper-500/40 dark:border-copper-400/40 bg-copper-500/10 dark:bg-copper-400/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-copper-600 dark:text-copper-300 transition-colors hover:bg-copper-500/20 dark:hover:bg-copper-400/20"
+            >
+              <span className="h-1.5 w-1.5 rounded-full bg-copper-500 dark:bg-copper-400 animate-glow-pulse" />
+              Mayorista
+            </Link>
           )}
 
           <ThemeToggle />
