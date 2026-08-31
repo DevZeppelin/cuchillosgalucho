@@ -15,14 +15,7 @@ import {
   formatARS,
   MENSAJE_SOLICITAR_ACCESO,
 } from "@/app/lib/whatsapp";
-
-// Marca este dispositivo como "ya verificado" para el ingreso de Raúl —
-// así la contraseña solo se pide una vez por dispositivo, no en cada sesión.
-const RAUL_TRUSTED_KEY = "galucho.raul.trusted.v1";
-
-function esDispositivoConfiable(): boolean {
-  return typeof window !== "undefined" && localStorage.getItem(RAUL_TRUSTED_KEY) === "1";
-}
+import { guardarRaulPassword, tieneRaulPassword } from "@/app/lib/raulAuth";
 
 export function MayoristasGate({ products }: { products: Product[] }) {
   const { isMayorista, mayorista, setMayorista, clear } = useCart();
@@ -47,7 +40,7 @@ export function MayoristasGate({ products }: { products: Product[] }) {
       }
       // A Raúl se le pide la contraseña una única vez por dispositivo antes
       // de darle acceso al panel de vendedor (remitos, agregar mayoristas).
-      if (esRaul(result.session.celular ?? result.session.usuario) && !esDispositivoConfiable()) {
+      if (esRaul(result.session.celular ?? result.session.usuario) && !tieneRaulPassword()) {
         setPendingSession(result.session);
         setPaso("password");
         return;
@@ -73,7 +66,9 @@ export function MayoristasGate({ products }: { products: Product[] }) {
         setError(result.error ?? "Contraseña incorrecta");
         return;
       }
-      localStorage.setItem(RAUL_TRUSTED_KEY, "1");
+      // Guardamos la contraseña ya validada: el resto del panel (agregar
+      // acceso mayorista, etc.) la reutiliza sin volver a pedirla.
+      guardarRaulPassword(passwordRaul);
       if (pendingSession) setMayorista(pendingSession);
       setCelular("");
       setPasswordRaul("");

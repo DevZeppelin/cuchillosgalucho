@@ -2,22 +2,26 @@
 
 import { useState } from "react";
 import { agregarAccesoWebAction } from "@/app/mayoristas/actions";
-
-// Guarda la contraseña del panel de Raúl en este dispositivo después de
-// validarla una vez, así no se vuelve a pedir para agregar otro contacto.
-const ACCESO_PWD_KEY = "galucho.raul.accesos.pwd.v1";
-
-function passwordGuardada(): string {
-  return typeof window !== "undefined" ? localStorage.getItem(ACCESO_PWD_KEY) ?? "" : "";
-}
+import {
+  getRaulPassword,
+  guardarRaulPassword,
+  olvidarRaulPassword,
+} from "@/app/lib/raulAuth";
 
 /**
  * Modal del panel de Raúl para agregar un contacto mayorista (nombre,
- * celular, ciudad) a la hoja ACCESOS_WEB. Protegido por contraseña, que se
- * guarda en el dispositivo tras la primera vez.
+ * celular, ciudad) a la hoja ACCESOS_WEB.
+ *
+ * Normalmente NO pide contraseña: reutiliza la que Raúl validó al ingresar
+ * a `/mayoristas` (ver `raulAuth`). Solo la pide como fallback si todavía no
+ * hay ninguna guardada en este dispositivo, o si la guardada quedó obsoleta.
  */
 export function AccesoWebModal({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const [password, setPassword] = useState(passwordGuardada);
+  // Contraseña ya validada y guardada en este dispositivo ("" si no hay).
+  // Solo cambia cuando la guardamos o la descartamos, NO mientras se tipea.
+  const [pwdGuardada, setPwdGuardada] = useState(getRaulPassword);
+  // Lo que Raúl escribe en el campo cuando todavía no hay una guardada.
+  const [pwdInput, setPwdInput] = useState("");
   const [nombre, setNombre] = useState("");
   const [ciudad, setCiudad] = useState("");
   const [celular, setCelular] = useState("");
@@ -27,9 +31,10 @@ export function AccesoWebModal({ open, onClose }: { open: boolean; onClose: () =
 
   if (!open) return null;
 
-  const pedirPassword = password === "";
+  const pedirPassword = pwdGuardada === "";
 
   const cerrar = () => {
+    setPwdInput("");
     setNombre("");
     setCiudad("");
     setCelular("");
@@ -43,6 +48,7 @@ export function AccesoWebModal({ open, onClose }: { open: boolean; onClose: () =
     setError(null);
     setLoading(true);
     try {
+      const password = (pedirPassword ? pwdInput : pwdGuardada).trim().toLowerCase();
       const fd = new FormData();
       fd.set("password", password);
       fd.set("nombre", nombre);
@@ -52,14 +58,18 @@ export function AccesoWebModal({ open, onClose }: { open: boolean; onClose: () =
       if (!result.ok) {
         // Si la contraseña guardada dejó de ser válida, la olvidamos para
         // que se vuelva a pedir en el próximo intento.
-        if (pedirPassword === false) {
-          localStorage.removeItem(ACCESO_PWD_KEY);
-          setPassword("");
+        if (!pedirPassword) {
+          olvidarRaulPassword();
+          setPwdGuardada("");
         }
         setError(result.error ?? "No se pudo agregar el contacto");
         return;
       }
-      if (pedirPassword) localStorage.setItem(ACCESO_PWD_KEY, password.trim().toLowerCase());
+      if (pedirPassword) {
+        guardarRaulPassword(password);
+        setPwdGuardada(password);
+        setPwdInput("");
+      }
       setOk(true);
       setNombre("");
       setCiudad("");
@@ -134,13 +144,13 @@ export function AccesoWebModal({ open, onClose }: { open: boolean; onClose: () =
                 <span className={labelClass}>Contraseña</span>
                 <input
                   type="password"
-                  value={password}
+                  value={pwdInput}
                   autoComplete="off"
                   autoCapitalize="none"
                   autoCorrect="off"
                   spellCheck={false}
                   autoFocus
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => setPwdInput(e.target.value)}
                   className={inputClass}
                 />
                 <span className="mt-1 block text-xs text-stone-400 dark:text-steel-400">
