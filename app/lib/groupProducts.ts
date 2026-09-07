@@ -46,6 +46,7 @@ export function groupProducts(products: Product[]): GroupedProduct[] {
       precio: p.precio,
       precioMayorista: p.precioMayorista,
       stock: p.stock,
+      soloMinorista: p.soloMinorista,
     };
     g.sizes.push(size);
   }

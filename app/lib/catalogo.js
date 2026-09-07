@@ -10,7 +10,10 @@
  *                 "136-cajaDOBLE" o "82-84-cajaPARR" — el sufijo de la caja puede
  *                 ser un número o un nombre), nombre de archivo con extensión,
  *                 URLs y links de Google Drive.
- *   SHEET       — categoría del producto (ej: "FINOX")
+ *   SHEET       — categoría del producto (ej: "FINOX"). Valor especial
+ *                 "solo minorista": el producto no tiene precio mayorista
+ *                 (TOTAL es el precio de venta al público, sin markup) y la
+ *                 categoría real se toma de TIPOHOJA.
  *   MODELO      — medida/variante (ej: "30 cm") → una fila por medida
  *   DESCRIPCION — nombre del producto (las filas con igual DESCRIPCION+SHEET
  *                 se agrupan en una tarjeta con selector de medidas)
@@ -227,8 +230,15 @@ function rowToProduct(rawRow, index, markupPct = MARKUP_PCT_DEFAULT) {
   const nombre = toTitleCase(rawNombre);
   const slug = makeSlug(rawNombre, id);
 
-  // SHEET es la categoría en la hoja INVENTARIO (con TIPOHOJA de respaldo)
-  const rawCat = String(pick(row, "categoria", "sheet", "tipohoja", "category", "tipo", "linea") ?? "").trim();
+  // SHEET es la categoría en la hoja INVENTARIO (con TIPOHOJA de respaldo).
+  // Valor especial: SHEET == "solo minorista" → el producto se vende solo al
+  // público (precio minorista = TOTAL tal cual, sin precio mayorista). En ese
+  // caso la categoría real sale de TIPOHOJA.
+  const rawSheet = String(pick(row, "sheet") ?? "").trim();
+  const soloMinorista = nk(rawSheet) === "solo_minorista";
+  const rawCat = soloMinorista
+    ? String(pick(row, "categoria", "tipohoja", "category", "tipo", "linea") ?? "").trim()
+    : String(pick(row, "categoria", "sheet", "tipohoja", "category", "tipo", "linea") ?? "").trim();
   const categoria = toTitleCase(rawCat) || "Sin categoría";
 
   const rawImg = pick(
@@ -252,9 +262,13 @@ function rowToProduct(rawRow, index, markupPct = MARKUP_PCT_DEFAULT) {
   );
   // Precio público = mayorista + markup% (COSTOS!M5). Si el sheet ya tiene columna "precio", la usa.
   const precioPublicoRaw = toNumber(pick(row, "precio", "price") ?? 0);
-  const precio = precioPublicoRaw > 0
-    ? precioPublicoRaw
-    : Math.round(precioMayoristaRaw * (1 + markupPct / 100));
+  // "solo minorista": TOTAL ya es el precio de venta al público (sin markup) y
+  // no hay precio mayorista.
+  const precio = soloMinorista
+    ? (precioPublicoRaw > 0 ? precioPublicoRaw : precioMayoristaRaw)
+    : (precioPublicoRaw > 0
+        ? precioPublicoRaw
+        : Math.round(precioMayoristaRaw * (1 + markupPct / 100)));
 
   // MODELO trae la medida ("30 cm", "10 cm"). Ojo: la columna HOJA ahora es un costo, no cm.
   const medida = String(pick(row, "modelo", "medida", "talle", "tamano") ?? "").trim();
@@ -273,7 +287,8 @@ function rowToProduct(rawRow, index, markupPct = MARKUP_PCT_DEFAULT) {
     // "descripcion" NO va acá: en la hoja INVENTARIO es el nombre del producto
     descripcionLarga: String(pick(row, "descripcion_larga") ?? "").trim(),
     precio,
-    precioMayorista: precioMayoristaRaw > 0 ? precioMayoristaRaw : undefined,
+    precioMayorista: soloMinorista || precioMayoristaRaw <= 0 ? undefined : precioMayoristaRaw,
+    soloMinorista,
     hojaCm: cm,
     materiales: toMateriales(pick(row, "materiales", "material", "materials")),
     imagen,

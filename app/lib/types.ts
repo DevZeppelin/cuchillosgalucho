@@ -9,6 +9,7 @@ export interface SizeOption {
   precio: number;
   precioMayorista?: number;
   stock?: number;
+  soloMinorista?: boolean;   // SHEET == "solo minorista": sin precio mayorista
 }
 
 export interface GroupedProduct {
@@ -34,6 +35,7 @@ export interface Product {
   descripcionLarga: string;
   precio: number;
   precioMayorista?: number;
+  soloMinorista?: boolean;   // SHEET == "solo minorista": el precio es minorista y no hay precio mayorista
   hojaCm: number;
   materiales: ProductMaterial[];
   imagen: string;

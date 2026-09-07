@@ -17,7 +17,10 @@ export function ProductCard({ product, showPriceMayorista, badge }: ProductCardP
   const [selectedSize, setSelectedSize] = useState<SizeOption>(product.sizes[0]);
 
   const imagenes = product.imagenes && product.imagenes.length > 0 ? product.imagenes : [product.imagen];
-  const useMayPrice = (showPriceMayorista || isMayorista) && selectedSize.precioMayorista;
+  const vistaMayorista = showPriceMayorista || isMayorista;
+  // Producto "solo minorista": en la vista mayorista no tiene precio.
+  const sinPrecioMayorista = vistaMayorista && !!selectedSize.soloMinorista;
+  const useMayPrice = vistaMayorista && !!selectedSize.precioMayorista;
   const precio = useMayPrice ? selectedSize.precioMayorista! : selectedSize.precio;
 
   function handleAdd() {
@@ -80,6 +83,11 @@ export function ProductCard({ product, showPriceMayorista, badge }: ProductCardP
           <p className="text-xs uppercase tracking-widest text-copper-500 dark:text-copper-400 mt-0.5">
             {product.categoria}
           </p>
+          {product.sizes.length === 1 && selectedSize.medida && selectedSize.medida !== "Unidad" && (
+            <p className="text-[11px] uppercase tracking-widest text-stone-400 dark:text-steel-500 mt-1">
+              Medida: <span className="text-stone-600 dark:text-steel-300 font-medium">{selectedSize.medida}</span>
+            </p>
+          )}
         </div>
 
         {product.sizes.length > 1 && (
@@ -114,9 +122,11 @@ export function ProductCard({ product, showPriceMayorista, badge }: ProductCardP
         <div className="flex items-center justify-between gap-2 pt-2 border-t border-stone-100 dark:border-steel-800/60">
           <div className="flex-1 min-w-0">
             <p className="text-[10px] uppercase tracking-widest text-stone-400 dark:text-steel-500 mb-0.5">
-              {useMayPrice ? "Precio mayorista" : "Precio"}
+              {sinPrecioMayorista ? "Mayorista" : useMayPrice ? "Precio mayorista" : "Precio"}
             </p>
-            {selectedSize.precio > 0 ? (
+            {sinPrecioMayorista ? (
+              <p className="text-sm text-stone-400 dark:text-steel-400 italic">Sin precio</p>
+            ) : selectedSize.precio > 0 ? (
               <p className="font-sans text-[1.35rem] leading-none font-bold tracking-tight text-gradient-copper tabular-nums truncate">
                 {formatARS(precio!)}
               </p>
@@ -124,16 +134,18 @@ export function ProductCard({ product, showPriceMayorista, badge }: ProductCardP
               <p className="text-sm text-stone-400 dark:text-steel-400 italic">Consultar</p>
             )}
           </div>
-          <button
-            onClick={handleAdd}
-            className="shrink-0 bg-copper-500 hover:bg-copper-400 text-white font-semibold text-[11px] uppercase tracking-widest px-3 py-2 rounded-md transition-all hover:scale-105 active:scale-95 flex items-center gap-1"
-            aria-label={`Agregar ${product.nombre} al carrito`}
-          >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-              <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-            </svg>
-            Agregar
-          </button>
+          {!sinPrecioMayorista && (
+            <button
+              onClick={handleAdd}
+              className="shrink-0 bg-copper-500 hover:bg-copper-400 text-white font-semibold text-[11px] uppercase tracking-widest px-3 py-2 rounded-md transition-all hover:scale-105 active:scale-95 flex items-center gap-1"
+              aria-label={`Agregar ${product.nombre} al carrito`}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+                <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+              </svg>
+              Agregar
+            </button>
+          )}
         </div>
       </div>
     </article>
