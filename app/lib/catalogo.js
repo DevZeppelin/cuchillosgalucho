@@ -21,6 +21,11 @@
  *   TOTAL       — precio mayorista; el precio público = TOTAL × (1 + markup/100).
  *                 El markup vive en la hoja COSTOS, celda M5 (ej: 90 = +90%)
  *                 y lo sirve el Apps Script vía ?config=precios.
+ *   TIPOHOJA    — tipo de hoja. Valor especial "PIEDRA": el precio mayorista
+ *                 es TOTAL × dólar oficial (se consulta directo a dolarapi.com,
+ *                 sin pasar por el Apps Script) y el precio minorista es ese
+ *                 mayorista + un recargo (56% para el ID 222 "Piedra Grande",
+ *                 50% para el resto de las piedras).
  *
  * Si SHEETS_WEBAPP_URL no está definida o la petición falla,
  * devuelve los productos de demostración (MOCK_PRODUCTS).
@@ -217,7 +222,14 @@ function makeSlug(nombre, id) {
   return `${base || "producto"}-${id}`;
 }
 
-function rowToProduct(rawRow, index, markupPct = MARKUP_PCT_DEFAULT) {
+// Recargo sobre el precio mayorista para calcular el minorista de las piedras
+// (TIPOHOJA == "PIEDRA"). El ID 222 es "Piedra Grande" y lleva un recargo
+// distinto al resto.
+const ID_PIEDRA_GRANDE = "222";
+const RECARGO_PIEDRA_GRANDE_PCT = 56;
+const RECARGO_PIEDRA_PCT = 50;
+
+function rowToProduct(rawRow, index, markupPct = MARKUP_PCT_DEFAULT, dolar = 0) {
   // Normalizar todas las claves
   const row = {};
   for (const [k, v] of Object.entries(rawRow)) {
@@ -241,6 +253,10 @@ function rowToProduct(rawRow, index, markupPct = MARKUP_PCT_DEFAULT) {
     : String(pick(row, "categoria", "sheet", "tipohoja", "category", "tipo", "linea") ?? "").trim();
   const categoria = toTitleCase(rawCat) || "Sin categoría";
 
+  // TIPOHOJA == "PIEDRA": precio mayorista y minorista con reglas propias (ver cabecera del archivo)
+  const rawTipoHoja = String(pick(row, "tipohoja") ?? "").trim();
+  const esPiedra = nk(rawTipoHoja) === "piedra";
+
   const rawImg = pick(
     row,
     "imagen",           // columna más común
@@ -256,19 +272,37 @@ function rowToProduct(rawRow, index, markupPct = MARKUP_PCT_DEFAULT) {
   const imagenes = resolveImagenes(rawImg);
   const imagen = imagenes[0];
 
-  // TOTAL de la hoja INVENTARIO = precio mayorista
-  const precioMayoristaRaw = toNumber(
+  // TOTAL de la hoja INVENTARIO = base del precio mayorista
+  const totalRaw = toNumber(
     pick(row, "total", "preciomayorista", "precio_mayorista", "mayorista", "precio_may") ?? 0
   );
-  // Precio público = mayorista + markup% (COSTOS!M5). Si el sheet ya tiene columna "precio", la usa.
+  // Precio público explícito, si el sheet ya trae columna "precio"
   const precioPublicoRaw = toNumber(pick(row, "precio", "price") ?? 0);
-  // "solo minorista": TOTAL ya es el precio de venta al público (sin markup) y
-  // no hay precio mayorista.
-  const precio = soloMinorista
-    ? (precioPublicoRaw > 0 ? precioPublicoRaw : precioMayoristaRaw)
-    : (precioPublicoRaw > 0
-        ? precioPublicoRaw
-        : Math.round(precioMayoristaRaw * (1 + markupPct / 100)));
+
+  let precio;
+  let precioMayoristaRaw;
+  if (esPiedra) {
+    // PIEDRA: mayorista = TOTAL × dólar. Minorista = mayorista + recargo
+    // (56% para "Piedra Grande" ID 222, 50% para el resto de las piedras).
+    precioMayoristaRaw = Math.round(totalRaw * (dolar > 0 ? dolar : 1));
+    const recargoPct = String(id).trim() === ID_PIEDRA_GRANDE
+      ? RECARGO_PIEDRA_GRANDE_PCT
+      : RECARGO_PIEDRA_PCT;
+    precio = precioPublicoRaw > 0
+      ? precioPublicoRaw
+      : Math.round(precioMayoristaRaw * (1 + recargoPct / 100));
+  } else if (soloMinorista) {
+    // "solo minorista": TOTAL ya es el precio de venta al público (sin
+    // markup) y no hay precio mayorista.
+    precioMayoristaRaw = 0;
+    precio = precioPublicoRaw > 0 ? precioPublicoRaw : totalRaw;
+  } else {
+    // Caso general: mayorista = TOTAL, minorista = mayorista + markup% (COSTOS!M5)
+    precioMayoristaRaw = totalRaw;
+    precio = precioPublicoRaw > 0
+      ? precioPublicoRaw
+      : Math.round(precioMayoristaRaw * (1 + markupPct / 100));
+  }
 
   // MODELO trae la medida ("30 cm", "10 cm"). Ojo: la columna HOJA ahora es un costo, no cm.
   const medida = String(pick(row, "modelo", "medida", "talle", "tamano") ?? "").trim();
@@ -319,6 +353,29 @@ export async function getMarkupPct(url) {
   return MARKUP_PCT_DEFAULT;
 }
 
+// API pública de dólar (la misma que usa actualizarDolar() en
+// apps-script/Code.gs) — se consulta directo desde acá para el precio
+// mayorista de los productos TIPOHOJA="PIEDRA", sin depender de que el
+// Apps Script esté redesplegado con soporte para devolver el dólar.
+const URL_DOLAR_API = "https://dolarapi.com/v1/dolares/oficial";
+
+/**
+ * Lee el dólar oficial (venta) desde dolarapi.com. Si falla, devuelve 0
+ * (rowToProduct usa 1 como fallback para no perder el precio de las piedras).
+ */
+export async function getDolarOficial() {
+  try {
+    const res = await fetch(URL_DOLAR_API, { next: { revalidate: 3600 } });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const raw = await res.json();
+    const venta = toNumber(raw?.venta);
+    if (venta > 0) return venta;
+  } catch (err) {
+    console.error("[catalogo] No se pudo leer el dólar oficial (dolarapi.com):", err?.message ?? err);
+  }
+  return 0;
+}
+
 /** @returns {Promise<import("./types").Product[]>} */
 export async function getCatalogo() {
   const url = process.env.SHEETS_WEBAPP_URL;
@@ -326,6 +383,7 @@ export async function getCatalogo() {
 
   try {
     const markupPromise = getMarkupPct(url);
+    const dolarPromise = getDolarOficial();
     const res = await fetch(url, { next: { revalidate: 3600 } });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
@@ -339,12 +397,12 @@ export async function getCatalogo() {
       return MOCK_PRODUCTS;
     }
 
-    const markupPct = await markupPromise;
+    const [markupPct, dolar] = await Promise.all([markupPromise, dolarPromise]);
 
     return rows
       .filter((r) => r && typeof r === "object")
       .filter((r) => !tieneOrdenCero(r))
-      .map((r, i) => rowToProduct(r, i, markupPct))
+      .map((r, i) => rowToProduct(r, i, markupPct, dolar))
       .filter((p) => {
         // Descartar filas con errores de Excel (#REF!, precios imposibles)
         if (p.nombre.includes("#REF!") || p.nombre.includes("#N/A")) return false;
