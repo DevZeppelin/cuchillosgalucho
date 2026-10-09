@@ -21,11 +21,14 @@
  *   TOTAL       — precio mayorista; el precio público = TOTAL × (1 + markup/100).
  *                 El markup vive en la hoja COSTOS, celda M5 (ej: 90 = +90%)
  *                 y lo sirve el Apps Script vía ?config=precios.
- *   TIPOHOJA    — tipo de hoja. Valores especiales "PIEDRA" y "NOVEDAD":
- *                 el precio mayorista es TOTAL × dólar oficial (se consulta
- *                 directo a dolarapi.com, sin pasar por el Apps Script) y el
- *                 precio minorista es ese mayorista + un recargo (56% para
- *                 el ID 222 "Piedra Grande", 50% para el resto).
+ *   TIPOHOJA    — tipo de hoja. Valores especiales "PIEDRA" y "NOVEDAD": el
+ *                 precio mayorista es TOTAL × dólar oficial (se consulta
+ *                 directo a dolarapi.com, sin pasar por el Apps Script). El
+ *                 precio minorista parte de ese mayorista y difiere:
+ *                   - PIEDRA: + 56% para el ID 222 "Piedra Grande", + 50%
+ *                     para el resto de las piedras.
+ *                   - NOVEDAD: + el markup minorista general (COSTOS!M5,
+ *                     el mismo % que usan los productos normales).
  *
  * Si SHEETS_WEBAPP_URL no está definida o la petición falla,
  * devuelve los productos de demostración (MOCK_PRODUCTS).
@@ -222,11 +225,13 @@ function makeSlug(nombre, id) {
   return `${base || "producto"}-${id}`;
 }
 
-// Tipos de hoja cuyo precio está en dólares: mayorista = TOTAL × dólar
-// oficial. El recargo para el minorista es el mismo recargo de "piedras"
-// (ver DOLAR_TIPOHOJA abajo): 56% para el ID 222 ("Piedra Grande"), 50% para
-// el resto (piedras y novedades).
-const DOLAR_TIPOHOJA = ["piedra", "novedad"];
+// Tipos de hoja cuyo precio mayorista está en dólares: mayorista = TOTAL ×
+// dólar oficial. El recargo para llegar al minorista SÍ difiere entre ellos
+// (ver la rama "esPrecioDolar" en rowToProduct):
+//   - PIEDRA: recargo fijo — 56% para el ID 222 ("Piedra Grande"), 50% para
+//     el resto de las piedras.
+//   - NOVEDAD: recargo = markupPct, el mismo % minorista general que define
+//     el Google Sheet en COSTOS!M5 (actualmente 80%, no un fijo propio).
 const ID_PIEDRA_GRANDE = "222";
 const RECARGO_PIEDRA_GRANDE_PCT = 56;
 const RECARGO_PIEDRA_PCT = 50;
@@ -255,10 +260,12 @@ function rowToProduct(rawRow, index, markupPct = MARKUP_PCT_DEFAULT, dolar = 0) 
     : String(pick(row, "categoria", "sheet", "tipohoja", "category", "tipo", "linea") ?? "").trim();
   const categoria = toTitleCase(rawCat) || "Sin categoría";
 
-  // TIPOHOJA == "PIEDRA" o "NOVEDAD": precio mayorista y minorista con
-  // reglas propias, en dólares (ver cabecera del archivo)
+  // TIPOHOJA == "PIEDRA" o "NOVEDAD": precio mayorista en dólares, cada uno
+  // con su propio recargo minorista (ver cabecera del archivo)
   const rawTipoHoja = String(pick(row, "tipohoja") ?? "").trim();
-  const esPrecioDolar = DOLAR_TIPOHOJA.includes(nk(rawTipoHoja));
+  const tipoHojaNk = nk(rawTipoHoja);
+  const esPiedra = tipoHojaNk === "piedra";
+  const esPrecioDolar = esPiedra || tipoHojaNk === "novedad";
 
   const rawImg = pick(
     row,
@@ -285,12 +292,15 @@ function rowToProduct(rawRow, index, markupPct = MARKUP_PCT_DEFAULT, dolar = 0) 
   let precio;
   let precioMayoristaRaw;
   if (esPrecioDolar) {
-    // PIEDRA / NOVEDAD: mayorista = TOTAL × dólar. Minorista = mayorista +
-    // recargo (56% para "Piedra Grande" ID 222, 50% para el resto).
+    // PIEDRA / NOVEDAD: mayorista = TOTAL × dólar oficial.
     precioMayoristaRaw = Math.round(totalRaw * (dolar > 0 ? dolar : 1));
-    const recargoPct = String(id).trim() === ID_PIEDRA_GRANDE
-      ? RECARGO_PIEDRA_GRANDE_PCT
-      : RECARGO_PIEDRA_PCT;
+    // Minorista = mayorista + recargo, pero el recargo depende del tipo:
+    //   - PIEDRA: fijo (56% "Piedra Grande" ID 222, 50% el resto).
+    //   - NOVEDAD: el markup minorista general del Sheet (COSTOS!M5), igual
+    //     que cualquier producto normal — no el recargo fijo de piedras.
+    const recargoPct = esPiedra
+      ? (String(id).trim() === ID_PIEDRA_GRANDE ? RECARGO_PIEDRA_GRANDE_PCT : RECARGO_PIEDRA_PCT)
+      : markupPct;
     precio = precioPublicoRaw > 0
       ? precioPublicoRaw
       : Math.round(precioMayoristaRaw * (1 + recargoPct / 100));
