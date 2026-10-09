@@ -41,6 +41,13 @@ const PLACEHOLDER_IMG = "/logo.png";
 // Precio máximo plausible — celdas con valores > a este son errores de Excel
 const MAX_PRECIO = 5_000_000;
 
+// Cuánto tiempo se cachea la respuesta del Apps Script antes de volver a
+// pedirla (Next "Data Cache"). Si el Apps Script responde vacío o falla una
+// vez (cold start, quota momentánea), ese resultado quedaba cacheado hasta
+// 1h — la web se veía "trabada" en los productos demo todo ese rato. Con una
+// ventana corta, un hiccup transitorio se autocorrige en minutos.
+const REVALIDATE_SECONDS = 300;
+
 // % de ganancia minorista si no se puede leer COSTOS!M5 del sheet
 const MARKUP_PCT_DEFAULT = 90;
 
@@ -355,7 +362,7 @@ function rowToProduct(rawRow, index, markupPct = MARKUP_PCT_DEFAULT, dolar = 0) 
  */
 export async function getMarkupPct(url) {
   try {
-    const res = await fetch(`${url}?config=precios`, { next: { revalidate: 3600 } });
+    const res = await fetch(`${url}?config=precios`, { next: { revalidate: REVALIDATE_SECONDS } });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const raw = await res.json();
     const pct = toNumber(raw?.markupPct);
@@ -397,7 +404,7 @@ export async function getCatalogo() {
   try {
     const markupPromise = getMarkupPct(url);
     const dolarPromise = getDolarOficial();
-    const res = await fetch(url, { next: { revalidate: 3600 } });
+    const res = await fetch(url, { next: { revalidate: REVALIDATE_SECONDS } });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
     const raw = await res.json();
