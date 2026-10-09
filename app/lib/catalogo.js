@@ -113,8 +113,8 @@ function toBoolean(v) {
   return /^(si|s|yes|true|1|x|✓)$/i.test(String(v ?? "").trim());
 }
 
-function toMateriales(v) {
-  if (!v) return ["acero"];
+function toMateriales(v, sinValor = ["acero"]) {
+  if (!v) return sinValor;
   if (Array.isArray(v)) return v.map((m) => String(m).trim().toLowerCase()).filter(Boolean);
   return String(v).split(/[,;/\s]+/).map((m) => m.trim().toLowerCase()).filter(Boolean);
 }
@@ -344,7 +344,9 @@ function rowToProduct(rawRow, index, markupPct = MARKUP_PCT_DEFAULT, dolar = 0) 
     precioMayorista: soloMinorista || precioMayoristaRaw <= 0 ? undefined : precioMayoristaRaw,
     soloMinorista,
     hojaCm: cm,
-    materiales: toMateriales(pick(row, "materiales", "material", "materials")),
+    // Piedras y novedades no son de acero — sin columna MATERIALES explícita
+    // no se les inventa una etiqueta de material.
+    materiales: toMateriales(pick(row, "materiales", "material", "materials"), esPrecioDolar ? [] : ["acero"]),
     imagen,
     imagenes,
     imagenSecundaria: String(pick(row, "imagen_secundaria", "imagen2") ?? "") || undefined,
