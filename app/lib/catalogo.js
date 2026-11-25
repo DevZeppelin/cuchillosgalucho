@@ -21,14 +21,16 @@
  *   TOTAL       — precio mayorista; el precio público = TOTAL × (1 + markup/100).
  *                 El markup vive en la hoja COSTOS, celda M5 (ej: 90 = +90%)
  *                 y lo sirve el Apps Script vía ?config=precios.
- *   TIPOHOJA    — tipo de hoja. Valores especiales "PIEDRA" y "NOVEDAD": el
- *                 precio mayorista es TOTAL × dólar oficial (se consulta
- *                 directo a dolarapi.com, sin pasar por el Apps Script). El
- *                 precio minorista parte de ese mayorista y difiere:
+ *   TIPOHOJA    — tipo de hoja. Valores especiales "PIEDRA" y "NOVEDAD".
+ *                 Como todo el catálogo, su TOTAL ya viene en PESOS (la
+ *                 conversión dólar → peso la hace el propio Sheet); la web
+ *                 no consulta ninguna cotización. Solo cambia el recargo
+ *                 minorista:
  *                   - PIEDRA: + 56% para el ID 222 "Piedra Grande", + 50%
  *                     para el resto de las piedras.
  *                   - NOVEDAD: + el markup minorista general (COSTOS!M5,
  *                     el mismo % que usan los productos normales).
+ *                 Ninguno de los dos lleva la etiqueta de material "acero".
  *
  * Si SHEETS_WEBAPP_URL no está definida o la petición falla,
  * devuelve los productos de demostración (MOCK_PRODUCTS).
@@ -232,18 +234,15 @@ function makeSlug(nombre, id) {
   return `${base || "producto"}-${id}`;
 }
 
-// Tipos de hoja cuyo precio mayorista está en dólares: mayorista = TOTAL ×
-// dólar oficial. El recargo para llegar al minorista SÍ difiere entre ellos
-// (ver la rama "esPrecioDolar" en rowToProduct):
-//   - PIEDRA: recargo fijo — 56% para el ID 222 ("Piedra Grande"), 50% para
-//     el resto de las piedras.
-//   - NOVEDAD: recargo = markupPct, el mismo % minorista general que define
-//     el Google Sheet en COSTOS!M5 (actualmente 80%, no un fijo propio).
+// PIEDRA: recargo minorista fijo propio — 56% para el ID 222 ("Piedra
+// Grande"), 50% para el resto de las piedras. El resto de los productos
+// (incluido NOVEDAD) usa markupPct, el % minorista general de COSTOS!M5.
+// Todos los TOTAL vienen en pesos desde el Sheet.
 const ID_PIEDRA_GRANDE = "222";
 const RECARGO_PIEDRA_GRANDE_PCT = 56;
 const RECARGO_PIEDRA_PCT = 50;
 
-function rowToProduct(rawRow, index, markupPct = MARKUP_PCT_DEFAULT, dolar = 0) {
+function rowToProduct(rawRow, index, markupPct = MARKUP_PCT_DEFAULT) {
   // Normalizar todas las claves
   const row = {};
   for (const [k, v] of Object.entries(rawRow)) {
@@ -267,12 +266,12 @@ function rowToProduct(rawRow, index, markupPct = MARKUP_PCT_DEFAULT, dolar = 0) 
     : String(pick(row, "categoria", "sheet", "tipohoja", "category", "tipo", "linea") ?? "").trim();
   const categoria = toTitleCase(rawCat) || "Sin categoría";
 
-  // TIPOHOJA == "PIEDRA" o "NOVEDAD": precio mayorista en dólares, cada uno
-  // con su propio recargo minorista (ver cabecera del archivo)
+  // TIPOHOJA == "PIEDRA": recargo minorista propio. PIEDRA y NOVEDAD no son
+  // cuchillos de acero (sin etiqueta de material por defecto).
   const rawTipoHoja = String(pick(row, "tipohoja") ?? "").trim();
   const tipoHojaNk = nk(rawTipoHoja);
   const esPiedra = tipoHojaNk === "piedra";
-  const esPrecioDolar = esPiedra || tipoHojaNk === "novedad";
+  const esNoAcero = esPiedra || tipoHojaNk === "novedad";
 
   const rawImg = pick(
     row,
@@ -298,30 +297,22 @@ function rowToProduct(rawRow, index, markupPct = MARKUP_PCT_DEFAULT, dolar = 0) 
 
   let precio;
   let precioMayoristaRaw;
-  if (esPrecioDolar) {
-    // PIEDRA / NOVEDAD: mayorista = TOTAL × dólar oficial.
-    precioMayoristaRaw = Math.round(totalRaw * (dolar > 0 ? dolar : 1));
-    // Minorista = mayorista + recargo, pero el recargo depende del tipo:
-    //   - PIEDRA: fijo (56% "Piedra Grande" ID 222, 50% el resto).
-    //   - NOVEDAD: el markup minorista general del Sheet (COSTOS!M5), igual
-    //     que cualquier producto normal — no el recargo fijo de piedras.
-    const recargoPct = esPiedra
-      ? (String(id).trim() === ID_PIEDRA_GRANDE ? RECARGO_PIEDRA_GRANDE_PCT : RECARGO_PIEDRA_PCT)
-      : markupPct;
-    precio = precioPublicoRaw > 0
-      ? precioPublicoRaw
-      : Math.round(precioMayoristaRaw * (1 + recargoPct / 100));
-  } else if (soloMinorista) {
+  if (soloMinorista) {
     // "solo minorista": TOTAL ya es el precio de venta al público (sin
     // markup) y no hay precio mayorista.
     precioMayoristaRaw = 0;
     precio = precioPublicoRaw > 0 ? precioPublicoRaw : totalRaw;
   } else {
-    // Caso general: mayorista = TOTAL, minorista = mayorista + markup% (COSTOS!M5)
+    // Caso general (incluye PIEDRA y NOVEDAD): mayorista = TOTAL en pesos,
+    // minorista = mayorista + recargo. El recargo es markupPct (COSTOS!M5),
+    // salvo PIEDRA, que tiene su % fijo (56% Piedra Grande ID 222, 50% resto).
+    const recargoPct = esPiedra
+      ? (id.trim() === ID_PIEDRA_GRANDE ? RECARGO_PIEDRA_GRANDE_PCT : RECARGO_PIEDRA_PCT)
+      : markupPct;
     precioMayoristaRaw = totalRaw;
     precio = precioPublicoRaw > 0
       ? precioPublicoRaw
-      : Math.round(precioMayoristaRaw * (1 + markupPct / 100));
+      : Math.round(precioMayoristaRaw * (1 + recargoPct / 100));
   }
 
   // MODELO trae la medida ("30 cm", "10 cm"). Ojo: la columna HOJA ahora es un costo, no cm.
@@ -346,7 +337,7 @@ function rowToProduct(rawRow, index, markupPct = MARKUP_PCT_DEFAULT, dolar = 0) 
     hojaCm: cm,
     // Piedras y novedades no son de acero — sin columna MATERIALES explícita
     // no se les inventa una etiqueta de material.
-    materiales: toMateriales(pick(row, "materiales", "material", "materials"), esPrecioDolar ? [] : ["acero"]),
+    materiales: toMateriales(pick(row, "materiales", "material", "materials"), esNoAcero ? [] : ["acero"]),
     imagen,
     imagenes,
     imagenSecundaria: String(pick(row, "imagen_secundaria", "imagen2") ?? "") || undefined,
@@ -375,29 +366,6 @@ export async function getMarkupPct(url) {
   return MARKUP_PCT_DEFAULT;
 }
 
-// API pública de dólar (la misma que usa actualizarDolar() en
-// apps-script/Code.gs) — se consulta directo desde acá para el precio
-// mayorista de los productos TIPOHOJA="PIEDRA", sin depender de que el
-// Apps Script esté redesplegado con soporte para devolver el dólar.
-const URL_DOLAR_API = "https://dolarapi.com/v1/dolares/oficial";
-
-/**
- * Lee el dólar oficial (venta) desde dolarapi.com. Si falla, devuelve 0
- * (rowToProduct usa 1 como fallback para no perder el precio de las piedras).
- */
-export async function getDolarOficial() {
-  try {
-    const res = await fetch(URL_DOLAR_API, { next: { revalidate: 3600 } });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const raw = await res.json();
-    const venta = toNumber(raw?.venta);
-    if (venta > 0) return venta;
-  } catch (err) {
-    console.error("[catalogo] No se pudo leer el dólar oficial (dolarapi.com):", err?.message ?? err);
-  }
-  return 0;
-}
-
 /** @returns {Promise<import("./types").Product[]>} */
 export async function getCatalogo() {
   const url = process.env.SHEETS_WEBAPP_URL;
@@ -405,7 +373,6 @@ export async function getCatalogo() {
 
   try {
     const markupPromise = getMarkupPct(url);
-    const dolarPromise = getDolarOficial();
     const res = await fetch(url, { next: { revalidate: REVALIDATE_SECONDS } });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
@@ -419,12 +386,12 @@ export async function getCatalogo() {
       return MOCK_PRODUCTS;
     }
 
-    const [markupPct, dolar] = await Promise.all([markupPromise, dolarPromise]);
+    const markupPct = await markupPromise;
 
     return rows
       .filter((r) => r && typeof r === "object")
       .filter((r) => !tieneOrdenCero(r))
-      .map((r, i) => rowToProduct(r, i, markupPct, dolar))
+      .map((r, i) => rowToProduct(r, i, markupPct))
       .filter((p) => {
         // Descartar filas con errores de Excel (#REF!, precios imposibles)
         if (p.nombre.includes("#REF!") || p.nombre.includes("#N/A")) return false;
